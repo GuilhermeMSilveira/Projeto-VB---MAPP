@@ -3,10 +3,12 @@ import PacienteConsulta from "./components/PacienteConsulta";
 import TelaAtendimento from "./pages/TelaAtendimento";
 import PacienteCadastro from "./pages/PacienteCadastro";
 import AvaliacaoMando from "./pages/AvaliacaoMando";
+import PlanoTerapeutico from "./PlanoTerapeutico";
 
 export default function App() {
   const [etapa, setEtapa] = useState("localizar");
   const [pacienteSelecionado, setPacienteSelecionado] = useState(null);
+  const [dadosAvaliacao, setDadosAvaliacao] = useState(null);
 
   return (
     <div className="p-4">
@@ -16,7 +18,7 @@ export default function App() {
             setPacienteSelecionado(paciente);
             setEtapa("visualizar");
           }}
-          onCadastrarNovo={() => setEtapa("cadastrar")} // botão "Cadastrar novo paciente"
+          onCadastrarNovo={() => setEtapa("cadastrar")}
         />
       )}
 
@@ -43,6 +45,18 @@ export default function App() {
         <AvaliacaoMando
           paciente={pacienteSelecionado}
           onVoltar={() => setEtapa("visualizar")}
+          onGerarPlano={(avaliacao) => {
+            setDadosAvaliacao(avaliacao);
+            setEtapa("plano");
+          }}
+        />
+      )}
+
+      {etapa === "plano" && pacienteSelecionado && dadosAvaliacao && (
+        <PlanoTerapeutico
+          paciente={pacienteSelecionado}
+          avaliacao={dadosAvaliacao}
+          onVoltar={() => setEtapa("avaliar")}
         />
       )}
     </div>
