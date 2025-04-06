@@ -73,6 +73,10 @@ const AvaliacaoMando = () => {
             <input type="text" className="w-full border border-gray-300 p-2 rounded-lg" />
           </div>
           <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Nome do Paciente</label>
+            <input type="text" className="w-full border border-gray-300 p-2 rounded-lg" />
+          </div>
+          <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Avaliador</label>
             <input type="text" className="w-full border border-gray-300 p-2 rounded-lg" />
           </div>
