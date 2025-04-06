@@ -51,13 +51,12 @@ const perguntasMandoNivel1 = [
   }
 ];
 const AvaliacaoMando = ({ paciente, onGerarPlano }) => {
-  const [respostas, setRespostas] = useState(Array(perguntasMandoNivel1.length).fill({ valor: "", descricao: "" }));
+  const [respostas, setRespostas] = useState(perguntasMandoNivel1.map(() => ({ valor: "", descricao: "" })));
   const [dataAvaliacao, setDataAvaliacao] = useState("");
   const [mensagemSucesso, setMensagemSucesso] = useState("");
   const [observacoes, setObservacoes] = useState("");
   const [avaliador, setAvaliador] = useState("");
 
-  
   useEffect(() => {
     const dataAtual = new Date().toISOString().split('T')[0];
     setDataAvaliacao(dataAtual);
@@ -82,7 +81,7 @@ const AvaliacaoMando = ({ paciente, onGerarPlano }) => {
         codigoPaciente: paciente.codigoPaciente,
         nomePaciente: paciente.nomeCompleto,
         dataAvaliacao,
-        avaliador: e.target.avaliador.value,
+        avaliador,
         respostas,
         totalPontos: calcularTotal(),
         observacoes,
@@ -104,7 +103,6 @@ const AvaliacaoMando = ({ paciente, onGerarPlano }) => {
       });
     }
   };
-  
 
   return (
     <div className="max-w-5xl mx-auto mt-10 p-8 bg-white rounded-2xl shadow-xl">
@@ -128,27 +126,28 @@ const AvaliacaoMando = ({ paciente, onGerarPlano }) => {
           <div>
             <label className="block text-sm font-medium text-gray-700">Avaliador</label>
             <input
-  type="text"
-  name="avaliador"
-  value={avaliador}
-  onChange={(e) => setAvaliador(e.target.value)}
-  required
-  className="w-full border p-2 rounded-lg"
-/>
+              type="text"
+              name="avaliador"
+              value={avaliador}
+              onChange={(e) => setAvaliador(e.target.value)}
+              required
+              className="w-full border p-2 rounded-lg"
+            />
           </div>
         </div>
 
         {/* Perguntas */}
-        <div className="space-y-2">
+        <div className="space-y-4">
           {perguntasMandoNivel1.map((pergunta, index) => (
-            <div key={pergunta.id} className="flex flex-col gap-2 mb-2">
+            <div key={pergunta.id} className="flex flex-col gap-2">
               <label className="block text-lg font-medium text-gray-800">
                 {index + 1}. {pergunta.texto}
               </label>
-              <select 
+              <select
                 value={respostas[index].valor}
                 onChange={(e) => handleResposta(index, e.target.value)}
                 className="w-full border border-gray-300 p-3 rounded-lg"
+                required
               >
                 <option value="">Selecione uma resposta</option>
                 {pergunta.respostas.map((r, i) => (
