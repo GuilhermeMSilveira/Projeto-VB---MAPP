@@ -30,4 +30,11 @@ export default [
       ],
     },
   },
+  {
+    // 👇 Configuração para arquivos Node.js (como o processPdf.js)
+    files: ['processPdf.js'], // ou ajuste o nome se for diferente
+    languageOptions: {
+      globals: globals.node,
+    },
+  },
 ]

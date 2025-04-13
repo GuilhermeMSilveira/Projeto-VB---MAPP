@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase/firebaseConfig'; // Importe a configuração do Firebase
-import { collection, addDoc } from 'firebase/firestore'
+import { collection, addDoc, updateDoc, doc, query, where, getDocs } from 'firebase/firestore';
 
 
 const perguntasMandoNivel1 = [
@@ -56,6 +56,7 @@ const AvaliacaoMando = ({ paciente, onGerarPlano }) => {
   const [mensagemSucesso, setMensagemSucesso] = useState("");
   const [observacoes, setObservacoes] = useState("");
   const [avaliador, setAvaliador] = useState("");
+  const [idAvaliacao, setIdAvaliacao] = useState(""); // Esta linha estava faltando
 
   useEffect(() => {
     const dataAtual = new Date().toISOString().split('T')[0];
@@ -66,18 +67,24 @@ const AvaliacaoMando = ({ paciente, onGerarPlano }) => {
     const respostaSelecionada = perguntasMandoNivel1[index].respostas.find(res => res.valor === parseFloat(valor));
     const descricao = respostaSelecionada ? respostaSelecionada.descricao : "";
     const novasRespostas = [...respostas];
-    novasRespostas[index] = { valor, descricao };
+    novasRespostas[index] = { valor: parseFloat(valor) || 0, descricao };
     setRespostas(novasRespostas);
   };
 
   const calcularTotal = () => {
-    return respostas.reduce((total, r) => total + (parseFloat(r.valor) || 0), 0);
+    return respostas.reduce((total, r) => total + (r.valor || 0), 0).toFixed(1); // Adicionado arredondamento
   };
 
   const salvarAvaliacao = async (e) => {
     e.preventDefault();
     try {
-      await addDoc(collection(db, "avaliacoes"), {
+      // 1. Buscar avaliações anteriores desse paciente
+      const q = query(collection(db, "avaliacoes"), where("codigoPaciente", "==", paciente.codigoPaciente));
+      const querySnapshot = await getDocs(q);
+      const numeroAvaliacao = querySnapshot.size + 1; // sequência
+      
+      // 2. Criar a avaliação
+      const docRef = await addDoc(collection(db, "avaliacoes"), {
         codigoPaciente: paciente.codigoPaciente,
         nomePaciente: paciente.nomeCompleto,
         dataAvaliacao,
@@ -85,22 +92,41 @@ const AvaliacaoMando = ({ paciente, onGerarPlano }) => {
         respostas,
         totalPontos: calcularTotal(),
         observacoes,
+        numeroAvaliacao // ✅ adiciona número da avaliação
       });
-      setMensagemSucesso("Avaliação registrada com sucesso!");
+
+      // 3. Atualiza o ID da avaliação
+      await updateDoc(doc(db, "avaliacoes", docRef.id), {
+        idAvaliacao: docRef.id
+      });
+
+      setIdAvaliacao(docRef.id); // Define o ID da avaliação
+      setMensagemSucesso(`Avaliação ${numeroAvaliacao} registrada com sucesso!`);
     } catch (error) {
       console.error("Erro ao salvar a avaliação:", error);
+      setMensagemSucesso("Houve um erro ao salvar a avaliação. Tente novamente.");
     }
   };
 
   const gerarPlanoTerapeutico = () => {
     if (typeof onGerarPlano === "function") {
-      onGerarPlano({
-        respostas,
+      const dadosAvaliacao = respostas.map((resposta, index) => ({
+        pergunta: perguntasMandoNivel1[index].texto,
+        valor: resposta.valor,
+        descricao: resposta.descricao
+      }));
+
+      const dadosFormatados = {
+        paciente: paciente.nomeCompleto,
+        respostas: dadosAvaliacao,
         totalPontos: calcularTotal(),
         observacoes,
+        avaliador,
         dataAvaliacao,
-        avaliador
-      });
+        idAvaliacao // Adicionado o ID da avaliação
+      };
+
+      onGerarPlano(dadosFormatados); // Passa os dados formatados para a função de geração do plano terapêutico
     }
   };
 
@@ -150,8 +176,10 @@ const AvaliacaoMando = ({ paciente, onGerarPlano }) => {
                 required
               >
                 <option value="">Selecione uma resposta</option>
-                {pergunta.respostas.map((r, i) => (
-                  <option key={i} value={r.valor}>{r.descricao}</option>
+                {pergunta.respostas.map((resposta) => (
+                  <option key={resposta.valor} value={resposta.valor}>
+                    {resposta.descricao}
+                  </option>
                 ))}
               </select>
             </div>
@@ -159,36 +187,31 @@ const AvaliacaoMando = ({ paciente, onGerarPlano }) => {
         </div>
 
         {/* Observações */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Observações</label>
+        <div className="space-y-4">
+          <label className="block text-sm font-medium text-gray-700">Observações</label>
           <textarea
-            rows="4"
             value={observacoes}
             onChange={(e) => setObservacoes(e.target.value)}
-            placeholder="Digite observações adicionais aqui..."
-            className="w-full border border-gray-300 p-3 rounded-lg"
-          />
+            className="w-full border p-2 rounded-lg"
+            rows={3}
+          ></textarea>
         </div>
 
-        {/* Resultado e Botões */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 mt-6">
-          <span className="text-lg font-semibold text-gray-800">
-            Total de Pontos: {calcularTotal()} / {perguntasMandoNivel1.length}
-          </span>
-          <button type="submit" className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition">
-            Salvar Avaliação
-          </button>
-          <button type="button" onClick={gerarPlanoTerapeutico} className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
+        {/* Botões */}
+        <div className="flex gap-6">
+          <button type="submit" className="bg-blue-500 text-white py-2 px-6 rounded-md">Salvar Avaliação</button>
+          <button
+            type="button"
+            onClick={gerarPlanoTerapeutico}
+            className="bg-green-500 text-white py-2 px-6 rounded-md"
+          >
             Gerar Plano Terapêutico
           </button>
         </div>
-      </form>
 
-      {mensagemSucesso && (
-        <div className="mt-4 text-green-600 font-bold">
-          {mensagemSucesso}
-        </div>
-      )}
+        {/* Mensagem de Sucesso */}
+        {mensagemSucesso && <div className="text-green-500 mt-4">{mensagemSucesso}</div>}
+      </form>
     </div>
   );
 };

@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import PacienteConsulta from "./components/PacienteConsulta";
+import PacienteConsulta from "./pages/PacienteConsulta";
 import TelaAtendimento from "./pages/TelaAtendimento";
 import PacienteCadastro from "./pages/PacienteCadastro";
 import AvaliacaoMando from "./pages/AvaliacaoMando";
-import PlanoTerapeutico from "./PlanoTerapeutico";
+import PlanoTerapeutico from "./pages/PlanoTerapeutico";
 
 export default function App() {
   const [etapa, setEtapa] = useState("localizar");
@@ -57,8 +57,8 @@ export default function App() {
           paciente={pacienteSelecionado}
           avaliacao={dadosAvaliacao}
           onVoltar={() => setEtapa("avaliar")}
-        />
-      )}
+      />
+            )}
     </div>
   );
 }
