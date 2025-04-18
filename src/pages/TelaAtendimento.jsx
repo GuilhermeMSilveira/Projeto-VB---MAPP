@@ -1,4 +1,8 @@
 import React, { useEffect, useState } from "react";
+import { collection, getDocs, query, where, addDoc } from "firebase/firestore";
+import { db } from "../firebase/firebaseConfig"; // ajuste se necessário
+import AvaliacaoMando from './AvaliacaoMando'; // ou o caminho correto
+
 
 const TelaAtendimento = ({ paciente, onVoltar, onAvancar }) => {
   const [formData, setFormData] = useState({
@@ -6,28 +10,47 @@ const TelaAtendimento = ({ paciente, onVoltar, onAvancar }) => {
     nomeCompleto: "",
     dataNascimento: "",
     genero: "",
-    nomeResponsavel: "",
+    responsavel: "",
     parentesco: "",
     telefone: "",
     email: "",
     endereco: "",
     observacoes: "",
+    numeroAtendimento: 0,
   });
 
   useEffect(() => {
+    const fetchNumeroAtendimento = async () => {
+      if (paciente?.codigoPaciente) {
+        const q = query(
+          collection(db, "atendimentos"),
+          where("codigoPaciente", "==", paciente.codigoPaciente)
+        );
+        const querySnapshot = await getDocs(q);
+        const numeroAtendimento = querySnapshot.size; // número sequencial
+        setFormData((prevData) => ({
+          ...prevData,
+          numeroAtendimento: numeroAtendimento,
+        }));
+      }
+    };
+
     if (paciente) {
       setFormData({
         codigoPaciente: paciente.codigoPaciente || "",
         nomeCompleto: paciente.nomeCompleto || "",
         dataNascimento: paciente.dataNascimento || "",
         genero: paciente.genero || "",
-        nomeResponsavel: paciente.nomeResponsavel || "",
+        responsavel: paciente.responsavel || "",
         parentesco: paciente.parentesco || "",
         telefone: paciente.telefone || "",
         email: paciente.email || "",
         endereco: paciente.endereco || "",
         observacoes: paciente.observacoes || "",
+        numeroAtendimento: 0,
       });
+
+      fetchNumeroAtendimento();
     }
   }, [paciente]);
 
@@ -36,52 +59,87 @@ const TelaAtendimento = ({ paciente, onVoltar, onAvancar }) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 px-4">
-      <div className="bg-white w-full max-w-4xl p-8 rounded-lg shadow-lg">
-        <h2 className="text-2xl font-bold text-blue-700 text-center mb-6">
-          Atendimento do Paciente
-        </h2>
+  const handleAvancar = async () => {
+    try {
+      // Salva os dados do atendimento no Firebase
+      await addDoc(collection(db, "atendimentos"), {
+        ...formData,
+        dataAtendimento: new Date().toISOString(),
+      });
 
-        <form className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      // Passa os dados necessários para a tela de avaliação
+      onAvancar(formData);  // Passe o objeto completo de dados
+    } catch (error) {
+      console.error("Erro ao salvar atendimento:", error);
+    }
+  };
+
+  const handleSalvar = async () => {
+    try {
+      // Salva os dados do atendimento no Firebase
+      await addDoc(collection(db, "atendimentos"), {
+        ...formData,
+        dataAtendimento: new Date().toISOString(),
+      });
+
+      alert("Atendimento salvo com sucesso!");
+    } catch (error) {
+      console.error("Erro ao salvar atendimento:", error);
+    }
+  };
+
+  return (
+    <div className="container-atendimento">
+      <div className="form-container-atendimento">
+        <h2 className="title-atendimento">Atendimento do Paciente</h2>
+
+        <form className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Código do Paciente</label>
+            <label className="input-group-atendimento">Número do Atendimento</label>
+            <input
+              name="numeroAtendimento"
+              value={formData.numeroAtendimento}
+              readOnly
+              className="input-atendimento bg-gray-100"
+            />
+          </div>
+          <div>
+            <label className="input-group-atendimento">Código do Paciente</label>
             <input
               name="codigoPaciente"
               value={formData.codigoPaciente}
               onChange={handleChange}
-              className="mt-1 w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="input-atendimento"
             />
           </div>
-
           <div>
-            <label className="block text-sm font-medium text-gray-700">Nome Completo</label>
+            <label className="input-group-atendimento">Nome Completo</label>
             <input
               name="nomeCompleto"
               value={formData.nomeCompleto}
               onChange={handleChange}
-              className="mt-1 w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="input-atendimento"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Data de Nascimento</label>
+            <label className="input-group-atendimento">Data de Nascimento</label>
             <input
               name="dataNascimento"
               type="date"
               value={formData.dataNascimento}
               onChange={handleChange}
-              className="mt-1 w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="input-atendimento"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Gênero</label>
+            <label className="input-group-atendimento">Gênero</label>
             <select
               name="genero"
               value={formData.genero}
               onChange={handleChange}
-              className="mt-1 w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="input-atendimento"
             >
               <option value="">Selecione</option>
               <option value="Masculino">Masculino</option>
@@ -91,81 +149,78 @@ const TelaAtendimento = ({ paciente, onVoltar, onAvancar }) => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Nome do Responsável</label>
+            <label className="input-group-atendimento">Nome do Responsável</label>
             <input
-              name="nomeResponsavel"
-              value={formData.nomeResponsavel}
+              name="responsavel"
+              value={formData.responsavel}
               onChange={handleChange}
-              className="mt-1 w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="input-atendimento"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Parentesco</label>
+            <label className="input-group-atendimento">Parentesco</label>
             <input
               name="parentesco"
               value={formData.parentesco}
               onChange={handleChange}
-              className="mt-1 w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="input-atendimento"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Telefone</label>
+            <label className="input-group-atendimento">Telefone</label>
             <input
               name="telefone"
               value={formData.telefone}
               onChange={handleChange}
-              className="mt-1 w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="input-atendimento"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">E-mail</label>
+            <label className="input-group-atendimento">E-mail</label>
             <input
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className="mt-1 w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="input-atendimento"
             />
           </div>
 
-          <div className="col-span-2">
-            <label className="block text-sm font-medium text-gray-700">Endereço</label>
+          <div className="md:col-span-3">
+            <label className="input-group-atendimento">Endereço</label>
             <textarea
               name="endereco"
               value={formData.endereco}
               onChange={handleChange}
-              className="mt-1 w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="input-atendimento"
               rows={2}
             />
           </div>
 
-          <div className="col-span-2">
-            <label className="block text-sm font-medium text-gray-700">Observações</label>
+          <div className="md:col-span-3">
+            <label className="input-group-atendimento">Observações</label>
             <textarea
               name="observacoes"
               value={formData.observacoes}
               onChange={handleChange}
-              className="mt-1 w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="input textarea"
               rows={3}
             />
           </div>
         </form>
-
-        <div className="flex justify-between mt-8">
-          <button
-            onClick={onVoltar}
-            className="bg-gray-400 text-white px-6 py-2 rounded hover:bg-gray-500"
-          >
+        <div className="flex gap-6">
+          <button onClick={onVoltar} className=" botao-voltar-atendimento">
             🔙 Voltar
           </button>
-          <button
-            onClick={onAvancar}
-            className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
-          >
+          <button onClick={handleSalvar} className="botao-salvar-atendimento">
+            💾 Salvar Atendimento
+          </button>
+          <button onClick={handleAvancar} className="botao-avancar-atendimento">
             ✅ Avançar para Avaliação
           </button>
+         
         </div>
       </div>
     </div>

@@ -12,6 +12,7 @@ export default function App() {
 
   return (
     <div className="p-4">
+      {/* Etapa de Localizar Paciente */}
       {etapa === "localizar" && (
         <PacienteConsulta
           onSelecionar={(paciente) => {
@@ -22,6 +23,7 @@ export default function App() {
         />
       )}
 
+      {/* Etapa de Cadastro de Paciente */}
       {etapa === "cadastrar" && (
         <PacienteCadastro
           onSalvar={(paciente) => {
@@ -32,6 +34,7 @@ export default function App() {
         />
       )}
 
+      {/* Etapa de Visualizar Paciente */}
       {etapa === "visualizar" && pacienteSelecionado && (
         <TelaAtendimento
           paciente={pacienteSelecionado}
@@ -41,24 +44,27 @@ export default function App() {
         />
       )}
 
+      {/* Etapa de Avaliação */}
       {etapa === "avaliar" && pacienteSelecionado && (
         <AvaliacaoMando
           paciente={pacienteSelecionado}
+          numeroAtendimento={pacienteSelecionado.numeroAtendimento} // Passando o numeroAtendimento
           onVoltar={() => setEtapa("visualizar")}
           onGerarPlano={(avaliacao) => {
-            setDadosAvaliacao(avaliacao);
-            setEtapa("plano");
+            setDadosAvaliacao(avaliacao); // Salva os dados da avaliação
+            setEtapa("plano"); // Muda para a etapa do plano terapêutico
           }}
         />
       )}
 
+      {/* Etapa de Plano Terapêutico */}
       {etapa === "plano" && pacienteSelecionado && dadosAvaliacao && (
         <PlanoTerapeutico
           paciente={pacienteSelecionado}
           avaliacao={dadosAvaliacao}
           onVoltar={() => setEtapa("avaliar")}
-      />
-            )}
+        />
+      )}
     </div>
   );
 }

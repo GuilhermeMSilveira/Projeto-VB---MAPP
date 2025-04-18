@@ -133,10 +133,10 @@ const PlanoTerapeutico = ({ avaliacao, paciente, onVoltar }) => {
 
   
   return (
-    <div className="p-4 bg-white shadow-md rounded-xl max-w-3xl mx-auto mt-6">
+    <div className="plano-terapeutico-container">
       <div ref={pdfRef} className="p-6">
-        <h1 className="text-3xl font-bold mb-6 text-blue-800">Plano Terapêutico</h1>
-        <div className="space-y-2 mb-6">
+        <h1 className="plano-terapeutico-titulo">Plano Terapêutico</h1>
+        <div className="plano-terapeutico-dados">
           <p><strong>Nome do Paciente:</strong> {paciente.nomeCompleto}</p>
           <p><strong>Código do Paciente:</strong> {paciente.codigoPaciente}</p>
           <p><strong>Data de Nascimento:</strong> {formatarData(paciente.dataNascimento)}</p>
@@ -146,9 +146,10 @@ const PlanoTerapeutico = ({ avaliacao, paciente, onVoltar }) => {
           <p><strong>Pontuação Total:</strong> {avaliacao.totalPontos}</p>
           <p><strong>Observações:</strong> {avaliacao.observacoes || "Nenhuma observação registrada."}</p>
         </div>
+        <hr className="divider" />
 
         <div className="mb-4">
-          <h2 className="text-xl font-semibold text-orange-600 mb-2">📋 Recomendações Terapêuticas:</h2>
+          <h2 className="plano-terapeutico-recomendacoes">📋 Recomendações Terapêuticas:</h2>
           <div className="space-y-1 whitespace-pre-wrap">
             {carregando ? (
               <p className="text-gray-500">Gerando plano terapêutico com base nas respostas do paciente...</p>
@@ -163,17 +164,17 @@ const PlanoTerapeutico = ({ avaliacao, paciente, onVoltar }) => {
         </div>
       </div>
 
-      <div className="flex justify-between mt-6">
+      <div className="plano-terapeutico-botoes">
         <button
           onClick={onVoltar}
-          className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400"
+          className="btn-voltar"
         >
-          Voltar para Avaliação
+        🔙 Voltar para Avaliação
         </button>
 
         <button
           onClick={exportarPDF}
-          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+          className="btn-exportar"
         >
           📄 Exportar como PDF
         </button>

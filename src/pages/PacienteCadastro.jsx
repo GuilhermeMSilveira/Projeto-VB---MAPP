@@ -6,6 +6,10 @@ import {
   doc,
   updateDoc,
   getDoc,
+  query,
+  orderBy,
+  limit,
+  getDocs,
 } from "firebase/firestore";
 
 const PacienteCadastro = ({ paciente, onCancelar }) => {
@@ -25,8 +29,8 @@ const PacienteCadastro = ({ paciente, onCancelar }) => {
   const [mensagem, setMensagem] = useState("");
 
   useEffect(() => {
-    if (paciente) {
-      const carregar = async () => {
+    const carregarPaciente = async () => {
+      if (paciente) {
         try {
           const docRef = doc(db, "pacientes", paciente.id);
           const docSnap = await getDoc(docRef);
@@ -36,9 +40,27 @@ const PacienteCadastro = ({ paciente, onCancelar }) => {
         } catch (error) {
           console.error("Erro ao carregar paciente:", error);
         }
-      };
-      carregar();
-    }
+      } else {
+        try {
+          const pacientesRef = collection(db, "pacientes");
+          const q = query(pacientesRef, orderBy("codigoPaciente", "desc"), limit(1));
+          const snapshot = await getDocs(q);
+
+          let novoCodigo = 1;
+          if (!snapshot.empty) {
+            const ultimoPaciente = snapshot.docs[0].data();
+            const ultimoCodigo = parseInt(ultimoPaciente.codigoPaciente);
+            novoCodigo = ultimoCodigo + 1;
+          }
+
+          setDados((prev) => ({ ...prev, codigoPaciente: String(novoCodigo) }));
+        } catch (error) {
+          console.error("Erro ao gerar código do paciente:", error);
+        }
+      }
+    };
+
+    carregarPaciente();
   }, [paciente]);
 
   const handleChange = (e) => {
@@ -46,7 +68,25 @@ const PacienteCadastro = ({ paciente, onCancelar }) => {
     setDados((prev) => ({ ...prev, [name]: value }));
   };
 
+  const camposObrigatorios = [
+    "codigoPaciente",
+    "nomeCompleto",
+    "dataNascimento",
+    "genero",
+    "responsavel",
+    "parentesco",
+    "telefone",
+    "endereco",
+  ];
+
+  const camposPreenchidos = camposObrigatorios.every((campo) => dados[campo].trim() !== "");
+
   const handleSubmit = async () => {
+    if (!camposPreenchidos) {
+      setMensagem("❌ Por favor, preencha todos os campos obrigatórios.");
+      return;
+    }
+
     try {
       if (paciente) {
         const docRef = doc(db, "pacientes", paciente.id);
@@ -63,42 +103,32 @@ const PacienteCadastro = ({ paciente, onCancelar }) => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-white px-4">
-      <div className="bg-white w-full max-w-3xl p-6 rounded-lg shadow-lg">
-        {/* Botão de voltar */}
-        <button
-          onClick={onCancelar}
-          className="mb-4 text-sm text-blue-600 hover:underline"
-        >
-          ← Voltar para Localizar Paciente
-        </button>
+    <div className="container">
+      <div className="form-container">
 
-        <h2 className="text-2xl font-bold text-blue-700 text-center mb-6">
+        <h2 className="title">
           {paciente ? "Editar Paciente" : "Cadastrar Novo Paciente"}
         </h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {[
-            ["Código do Paciente", "codigoPaciente", "text"],
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {[ 
+            ["Código do Paciente", "codigoPaciente", "text", true],
             ["Nome Completo", "nomeCompleto", "text"],
             ["Data de Nascimento", "dataNascimento", "date"],
             ["Gênero", "genero", "select"],
             ["Nome do Responsável", "responsavel", "text"],
             ["Parentesco", "parentesco", "select-parentesco"],
             ["Telefone", "telefone", "tel"],
-            ["E-mail", "email", "email"],
-          ].map(([label, name, type]) => (
-            <div className="flex flex-col" key={name}>
-              <label className="mb-1 text-sm font-medium text-gray-700">
-                {label}
-              </label>
-
+            ["E-mail", "email", "email"]
+          ].map(([label, name, type, readOnly = false]) => (
+            <div className="input-group" key={name}>
+              <label className="label">{label}</label>
               {type === "select" ? (
                 <select
                   name={name}
                   value={dados[name]}
                   onChange={handleChange}
-                  className="border p-2 rounded"
+                  className="input"
                 >
                   <option value="">Selecione o Gênero</option>
                   <option value="Masculino">Masculino</option>
@@ -110,7 +140,7 @@ const PacienteCadastro = ({ paciente, onCancelar }) => {
                   name={name}
                   value={dados[name]}
                   onChange={handleChange}
-                  className="border p-2 rounded"
+                  className="input"
                 >
                   <option value="">Selecione o Parentesco</option>
                   <option value="Mãe">Mãe</option>
@@ -129,50 +159,51 @@ const PacienteCadastro = ({ paciente, onCancelar }) => {
                   name={name}
                   value={dados[name]}
                   onChange={handleChange}
-                  className="border p-2 rounded"
+                  readOnly={readOnly}
+                  className={`input ${readOnly ? "input-readonly" : ""}`}
                 />
               )}
             </div>
           ))}
         </div>
-
-        <div className="mt-4">
-          <label className="mb-1 block text-sm font-medium text-gray-700">
-            Endereço
-          </label>
+        <div className="input-group" key="endereco">
+        <label  className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">Endereço</label>
           <textarea
             name="endereco"
             value={dados.endereco}
             onChange={handleChange}
-            className="border p-2 rounded w-full"
+            className="input"
           />
         </div>
-
-        <div className="mt-2">
-          <label className="mb-1 block text-sm font-medium text-gray-700">
-            Observações
-          </label>
+        <div className="input-group">
+          <label className="label">Observações</label>
           <textarea
             name="observacoes"
             value={dados.observacoes}
             onChange={handleChange}
-            className="border p-2 rounded w-full"
+            className="input textarea"
           />
         </div>
-
         {mensagem && (
-          <p className="text-green-600 font-medium text-center mt-4">
+          <p className={`message ${mensagem.startsWith("✅") ? "success" : "error"}`}>
             {mensagem}
           </p>
         )}
 
-        <div className="flex justify-center mt-6">
+        <div className="submit-container">
+        <button
+          onClick={onCancelar}
+          className="botao botao-Voltar"
+        >
+          🔙 Voltar para Localizar Paciente
+        </button>
           <button
             onClick={handleSubmit}
-            className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
+            className="submit-button"
           >
-            Salvar
+            💾 Salvar
           </button>
+
         </div>
       </div>
     </div>

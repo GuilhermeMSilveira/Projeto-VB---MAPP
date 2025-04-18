@@ -8,19 +8,22 @@
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color-scheme: light;
+  color: #1a1a1a;
+  background-color: #f2f4f7; /* 💡 tom neutro claro */
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-body {
+/* Garante que html e body ocupem toda a tela */
+html, body {
+  height: 100%;
   margin: 0;
-  min-width: 320px;
-  min-height: 5px;
+  padding: 0;
+  background-color: #f2f4f7; /* 💡 Consistência */
+  overflow-x: hidden; /* evita rolagem lateral */
 }
 
 a {
@@ -48,13 +51,6 @@ button {
   cursor: pointer;
   transition: border-color 0.25s;
 }
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
 
 @media (prefers-color-scheme: light) {
   :root {
@@ -68,3 +64,640 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+/* index.css ou app.css */
+
+/* Definindo uma estrutura flexível para o container */
+.container {
+  display: flex;
+  flex-direction: column; /* Empilha os itens na vertical */
+  align-items: center;    /* Alinha os itens no centro horizontalmente */
+  justify-content: center; /* Alinha os itens no centro verticalmente */
+  min-height: 100vh;      /* Garante que a altura mínima seja a altura total da tela */
+  padding: 1rem;
+}
+
+/* Layout do formulário de busca */
+.formulario-busca {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 colunas iguais */
+  gap: 1rem;                             /* Espaço entre os elementos */
+  width: 100%;
+  max-width: 900px;
+  margin-inline: auto;                  /* Centraliza horizontalmente */
+
+}
+/* Estilo para o campo Código do Paciente */
+.input-codigo-paciente {
+  padding: 0.75rem;
+  font-size: 1rem;
+  background-color: #f3f4f6; /* cinza claro para campo readonly */
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 250px;
+}
+/* Estilo para o campo Nome Completo */
+.input-nome-completo {
+  padding: 0.75rem;
+  font-size: 1rem;
+  background-color: #f3f4f6; /* cinza claro para campo readonly */
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 400px;
+  margin-left: 1rem;  /* Altere o valor conforme necessário */
+}
+/* Estilo para o campo Data de Nascimento */
+.input-data-nascimento {
+  padding: 0.75rem;
+  font-size: 1rem;
+  border: 1px solid #d1d5db;
+  background-color: #f3f4f6; /* cinza claro para campo readonly */
+  border-radius: 8px;
+  width: 100%;
+  max-width: 250px;
+  margin-left: 2rem;  /* Altere o valor conforme necessário */
+}
+
+/* Estilo para o botão de buscar */
+.botao-buscar {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  background-color: #1e40af;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-left: 0rem;  /* Altere o valor conforme necessário */
+  margin-top: 0.5rem; /* Adiciona espaçamento acima do botão */
+}
+
+/* Estilo para o botão de cadastrar paciente */
+.botao-cadastrar {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  background-color: #1e40af;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-left: 1rem;  /* Altere o valor conforme necessário */
+  margin-top: 0.5rem; /* Adiciona espaçamento acima do botão */
+}
+
+/* Ajustando a lista de pacientes */
+.pacientes-lista {
+  max-height: 400px;      /* Limita a altura da lista de pacientes */
+  overflow-y: auto;       /* Adiciona barra de rolagem se necessário */
+  width: 100%;
+  margin-top: 2rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 0; /* Garante que não tenha padding extra */
+}
+
+.pacientes-lista ul li {
+  border-bottom: 1px solid #ddd;
+  padding-left: 1rem;  /* Mover para a direita */
+  padding-right: 1rem; /* Se quiser manter equilíbrio */
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+/* Remove a linha do último item */
+.pacientes-lista ul li:last-child {
+  border-bottom: none;
+}
+
+.paciente-item {
+  padding: 1rem;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.paciente-item:hover {
+  background-color: #f4f4f4;
+}
+
+
+/* Container Tela Cadastro */
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f9fafb; /* Cor de fundo mais suave */
+  padding: 20px;
+}
+
+.form-container {
+  background-color: #fff;
+  width: 100%;
+  max-width: 900px; /* Limita a largura */
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #1e3a8a;
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+  
+}
+
+
+.label {
+  font-size: 1rem;
+  color: #4b5563;
+  margin-bottom: 8px;
+}
+
+.input {
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.input:focus {
+  border-color: #1e40af;
+  outline: none;
+}
+
+.input-readonly {
+  background-color: #f3f4f6;
+}
+
+.textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.message {
+  text-align: center;
+  font-size: 1rem;
+  font-weight: medium;
+  margin-top: 20px;
+}
+/* Estilo para o botão de buscar */
+
+.success {
+  color: #10b981;
+}
+
+.error {
+  color: #ef4444;
+}
+
+.submit-container {
+  display: flex;
+  justify-content: 500px;
+  margin-top: 30px;
+}
+
+.submit-button {
+  background-color: #1e40af;
+  color: white;
+  padding: 14px 30px;
+  border-radius: 5px;
+  font-size: 1rem;
+  margin-left: 1rem;  /* Altere o valor conforme necessário */
+  cursor: pointer;
+}
+.botao-Voltar {
+  padding: 14px 30px;
+  font-size: 1rem;
+  background-color: #1e40af;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-left: 12rem;  /* Altere o valor conforme necessário */
+}
+
+.submit-button:hover {
+  background-color: #1d4ed8;
+}
+
+/* Container Tela Atendimento */
+.container-atendimento {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f9fafb; /* Cor de fundo mais suave */
+  padding: 20px;
+}
+
+.form-container-atendimento {
+  background-color: #fff;
+  width: 100%;
+  max-width: 900px; /* Limita a largura */
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1)
+  
+}
+
+.title-atendimento {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #1e3a8a;
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.input-group-atendimento {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+  
+}
+
+
+.label-atendimento {
+  font-size: 1rem;
+  color: #4b5563;
+  margin-bottom: 8px;
+}
+
+.input-atendimento {
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+  width: 100%;
+
+}
+
+.input-atendimento:focus {
+  border-color: #1e40af;
+  outline: none;
+}
+
+.input-readonly-atendimento {
+  background-color: #f3f4f6;
+}
+
+.textarea-atendimento {
+  height: 150px;
+  resize: vertical;
+}
+
+.message-atendimento {
+  text-align: center;
+  font-size: 1rem;
+  font-weight: medium;
+  margin-top: 20px;
+}
+/* Estilo para o botão de buscar */
+
+.success-atendimento {
+  color: #10b981;
+}
+
+.error-atendimento {
+  color: #ef4444;
+}
+
+.submit-container-atendimento {
+  display: flex;
+  justify-content: 500px;
+  margin-top: 30px;
+}
+
+.submit-button-atendimento {
+  background-color: #1e40af;
+  color: white;
+  padding: 14px 30px;
+  border-radius: 5px;
+  font-size: 1rem;
+  margin-left: 1rem;  /* Altere o valor conforme necessário */
+  cursor: pointer;
+}
+
+.botao-voltar-atendimento {
+  padding: 14px 30px;
+  font-size: 1rem;
+  background-color: #1e40af;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-left: 1rem;  /* Altere o valor conforme necessário */
+  width: 250px; /* ou qualquer valor desejado, ex: 100%, 20rem, auto */
+  position: relative;
+  top: 15px;  /* Mova o botão para cima de maneira controlada */
+}
+
+.botao-salvar-atendimento {
+  padding: 14px 30px;
+  font-size: 1rem;
+  background-color: #1e40af;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-left: 3rem;  /* Altere o valor conforme necessário */
+  width: 250px; /* ou qualquer valor desejado, ex: 100%, 20rem, auto */
+  position: relative;
+  top: 15px;  /* Mova o botão para cima de maneira controlada */
+}
+
+.botao-avancar-atendimento{
+  padding: 14px 30px;
+  font-size: 1rem;
+  background-color: #1e40af;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-left: 3rem;  /* Altere o valor conforme necessário */
+  width: 270px; /* ou qualquer valor desejado, ex: 100%, 20rem, auto */
+  position: relative;
+  top: 15px;  /* Mova o botão para cima de maneira controlada */
+}
+
+.submit-button-atendimento:hover {
+  background-color: #1d4ed8;
+}
+/* Layout da Avaliacao */
+
+.container-avaliacao {
+  max-width: 1100px;
+  margin: 40px auto;
+  padding: 40px;
+  background-color: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.container-avaliacao h2 {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #1f2937; /* Gray-800 */
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e5e7eb; /* Gray-200 */
+}
+card-dados-paciente {
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  padding: 24px;
+  border-radius: 12px;
+  margin-bottom: 32px;
+}
+
+.card-dados-paciente h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #111827;
+}
+
+.grid-dados {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+}
+.divider {
+  border: none;
+  border-top: 2px solid #d1d5db;
+  margin: 55px 0;
+}
+.container-avaliacao label {
+  font-weight: 500;
+  color: #374151; /* Gray-700 */
+  font-size: 1rem;
+}
+
+.container-avaliacao input,
+.container-avaliacao select,
+.container-avaliacao textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db; /* Gray-300 */
+  border-radius: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.container-avaliacao button {
+  padding: 0.6rem 1.5rem;
+  border-radius: 0.375rem;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+.secao-dados-paciente {
+  background-color: #f9fafb; /* Gray-50 */
+  padding: 24px;
+  border-radius: 12px;
+  margin-bottom: 32px;
+  border: 1px solid #e5e7eb; /* Gray-200 */
+}
+
+.secao-dados-paciente h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937; /* Gray-800 */
+  margin-bottom: 16px;
+}
+
+
+.container-avaliacao button:hover {
+  filter: brightness(0.95);
+}
+
+.btn-salvar {
+  background-color: #3b82f6; /* Blue-500 */
+  color: white;
+}
+
+.btn-plano {
+  background-color: #10b981; /* Green-500 */
+  color: white;
+}
+
+.botao-voltar-avaliacao {
+  padding: 14px 30px;
+  font-size: 1rem;
+  background-color: #1e40af;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-left: 2rem;  /* Altere o valor conforme necessário */
+  width: 250px; /* ou qualquer valor desejado, ex: 100%, 20rem, auto */
+  position: relative;
+  top: -52px;  /* Mova o botão para cima de maneira controlada */
+}
+
+.botao-salvar-avaliacao {
+  padding: 14px 30px;
+  font-size: 1rem;
+  background-color: #1e40af;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-left: 26rem;
+  width: 250px;
+  margin-top: 25px; /* Ajuste para mover o botão para baixo */
+  margin-bottom: 10px; /* Ajuste para mover o botão para cima */
+}
+
+.botao-gerar-plano-avaliacao {
+  padding: 14px 30px;
+  font-size: 1rem;
+  background-color: #1e40af;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 0;
+  width: 250px;
+  margin-left: 9rem;
+  margin-top: -10px; /* Ajuste para mover o botão para baixo */
+  margin-bottom: -10px; /* Ajuste para mover o botão para cima */
+}
+
+.mensagem-sucesso {
+  margin-top: 1rem;
+  color: #10b981;
+  font-weight: 600;
+}
+.mensagem-sucesso {
+  color: #38a169; /* Cor de texto verde */
+  font-size: 1.1rem; /* Tamanho da fonte */
+  font-weight: bold; /* Peso da fonte */
+  margin-top: 1rem; /* Distância superior */
+  padding: 10px; /* Padding para dar espaçamento */
+  background-color: #e6f4ea; /* Fundo verde claro */
+  border-left: 4px solid #38a169; /* Borda à esquerda verde */
+  border-radius: 8px; /* Bordas arredondadas */
+  animation: fadeIn 0.5s ease-in-out; /* Animação para aparecer suavemente */
+}
+@keyframes fadeIn {
+  0% {
+      opacity: 0;
+  }
+  100% {
+      opacity: 1;
+  }
+}
+/* Estilos gerais do Plano Terapêutico */
+.plano-terapeutico-container {
+  padding: 1.5rem; /* Espaçamento interno */
+  background-color: white; /* Fundo branco */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Sombra suave */
+  border-radius: 1rem; /* Bordas arredondadas */
+  max-width: 900px; /* Largura máxima */
+  margin: 2rem auto; /* Centralizar na tela */
+}
+
+.plano-terapeutico-titulo {
+  font-size: 2rem; /* Tamanho do título */
+  font-weight: bold; /* Título em negrito */
+  margin-bottom: 1.5rem; /* Espaço abaixo do título */
+  color: #2b6cb0; /* Cor azul */
+}
+
+.plano-terapeutico-dados {
+  margin-bottom: 1.5rem; /* Espaço abaixo */
+}
+
+.plano-terapeutico-dados p {
+  font-size: 1rem; /* Tamanho de fonte */
+  margin-bottom: 0.5rem; /* Espaçamento entre os dados */
+}
+
+.plano-terapeutico-dados strong {
+  font-weight: bold; /* Negrito para os títulos dos dados */
+  color: #4a5568; /* Cor cinza escuro */
+}
+
+.plano-terapeutico-recomendacoes {
+  margin-bottom: 2rem; /* Espaço abaixo da seção */
+}
+
+.plano-terapeutico-recomendacoes h2 {
+  font-size: 1.25rem; /* Tamanho do título */
+  font-weight: 600; /* Título em seminegrito */
+  color: #ed8936; /* Cor laranja */
+  margin-bottom: 1rem; /* Espaço abaixo do título */
+}
+
+.plano-terapeutico-recomendacoes p {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  line-height: 1.6; /* Espaçamento entre linhas */
+}
+
+.plano-terapeutico-botoes {
+  display: flex;
+  justify-content: space-between; /* Espaço entre os botões */
+  margin-top: 2rem; /* Espaço superior */
+}
+
+.plano-terapeutico-botoes button {
+  padding: 0.75rem 1.5rem; /* Tamanho do botão */
+  border-radius: 0.375rem; /* Bordas arredondadas */
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease; /* Efeito de transição */
+}
+
+.plano-terapeutico-botoes .btn-voltar {
+  background-color:  #1e40af; /* Cor de fundo do botão de voltar */
+  color: white; /* Cor do texto */
+}
+
+.plano-terapeutico-botoes .btn-voltar:hover {
+  background-color: #cbd5e0; /* Efeito hover */
+}
+
+.plano-terapeutico-botoes .btn-exportar {
+  background-color:#1e40af; /* Cor de fundo do botão de exportar */
+  color: white; /* Cor do texto */
+}
+
+.plano-terapeutico-botoes .btn-exportar:hover {
+  background-color: #38a169; /* Efeito hover */
+}
+
+/* Animação suave ao aparecer o conteúdo */
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.plano-terapeutico-container {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .formulario-busca {
+    grid-template-columns: 1fr;  /* Em telas menores, coloca os campos em uma coluna */
+  }
+}
+

@@ -38,73 +38,78 @@ const PacienteConsulta = ({ onSelecionar, onCadastrarNovo }) => {
     }
   };
 
+  const formatarData = (dataString) => {
+    if (!dataString) return "";
+    const [ano, mes, dia] = dataString.split("-");
+    return `${dia}/${mes}/${ano}`;
+  };
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-white">
+    <div className="container mx-auto p-6">
       <div className="bg-white w-full max-w-3xl p-6 rounded-lg shadow-lg">
         <h2 className="text-2xl font-bold text-blue-700 text-center mb-6">
           Localizar Paciente
         </h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-          <input
-            type="text"
-            placeholder="Nome"
-            value={filtro.nome}
-            onChange={(e) => setFiltro({ ...filtro, nome: e.target.value })}
-            className="border p-2 rounded"
-          />
+        <div className="formulario-busca mb-6 space-y-4">
           <input
             type="text"
             placeholder="Código"
             value={filtro.codigo}
             onChange={(e) => setFiltro({ ...filtro, codigo: e.target.value })}
-            className="border p-2 rounded"
-          />
+            className="input-codigo-paciente"
+            />
+          <input
+            type="text"
+            placeholder="Nome"
+            value={filtro.nome}
+            onChange={(e) => setFiltro({ ...filtro, nome: e.target.value })}
+            className="input-nome-completo"
+            />
           <input
             type="date"
             value={filtro.nascimento}
             onChange={(e) =>
-              setFiltro({ ...filtro, nascimento: e.target.value })
-            }
-            className="border p-2 rounded"
-          />
+              setFiltro({ ...filtro, nascimento: e.target.value })}
+            className="input-data-nascimento"
+            />
         </div>
 
-        <div className="flex justify-center mb-4 gap-4 flex-wrap">
+        <div className="flex justify-between mb-6 gap-4 flex-wrap">
           <button
             onClick={buscarPaciente}
-            className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
-          >
-            Buscar
+            className="botao botao-buscar"
+            >
+             🔍 Buscar
           </button>
           <button
             onClick={onCadastrarNovo}
-            className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
-          >
+            className="botao botao-cadastrar"
+            >
             ➕ Cadastrar Novo Paciente
           </button>
         </div>
 
         {carregando ? (
-          <p className="text-center">Carregando...</p>
+          <p className="text-center text-blue-600">Carregando...</p>
         ) : (
-          <div className="max-h-64 overflow-y-auto">
+          <div className="pacientes-lista mt-6">
             {pacientes.length > 0 ? (
-              <ul className="space-y-2">
+              <ul className="space-y-4">
                 {pacientes.map((paciente, index) => (
                   <li
                     key={index}
                     onClick={() => onSelecionar(paciente)}
-                    className="border p-4 rounded shadow hover:bg-gray-100 cursor-pointer"
+                    className="border p-4 rounded-lg shadow-sm cursor-pointer hover:bg-gray-100 transition-all"
                   >
-                    <p>
-                      <strong>Nome:</strong> {paciente.nomeCompleto}
-                    </p>
                     <p>
                       <strong>Código:</strong> {paciente.codigoPaciente}
                     </p>
                     <p>
-                      <strong>Nascimento:</strong> {paciente.dataNascimento}
+                      <strong>Nome:</strong> {paciente.nomeCompleto}
+                    </p>
+                    <p>
+                      <strong>Nascimento:</strong> {formatarData(paciente.dataNascimento)}
                     </p>
                   </li>
                 ))}

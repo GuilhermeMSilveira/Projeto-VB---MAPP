@@ -50,18 +50,21 @@ const perguntasMandoNivel1 = [
     ],
   }
 ];
-const AvaliacaoMando = ({ paciente, onGerarPlano }) => {
+const AvaliacaoMando = ({ paciente, onGerarPlano, onVoltar }) => {
   const [respostas, setRespostas] = useState(perguntasMandoNivel1.map(() => ({ valor: "", descricao: "" })));
   const [dataAvaliacao, setDataAvaliacao] = useState("");
   const [mensagemSucesso, setMensagemSucesso] = useState("");
   const [observacoes, setObservacoes] = useState("");
   const [avaliador, setAvaliador] = useState("");
   const [idAvaliacao, setIdAvaliacao] = useState(""); // Esta linha estava faltando
+  const [numeroAtendimento, setNumeroAtendimento] = useState(0);
+
 
   useEffect(() => {
     const dataAtual = new Date().toISOString().split('T')[0];
     setDataAvaliacao(dataAtual);
   }, []);
+  
 
   const handleResposta = (index, valor) => {
     const respostaSelecionada = perguntasMandoNivel1[index].respostas.find(res => res.valor === parseFloat(valor));
@@ -78,12 +81,10 @@ const AvaliacaoMando = ({ paciente, onGerarPlano }) => {
   const salvarAvaliacao = async (e) => {
     e.preventDefault();
     try {
-      // 1. Buscar avaliações anteriores desse paciente
       const q = query(collection(db, "avaliacoes"), where("codigoPaciente", "==", paciente.codigoPaciente));
       const querySnapshot = await getDocs(q);
-      const numeroAvaliacao = querySnapshot.size + 1; // sequência
-      
-      // 2. Criar a avaliação
+      const numeroAvaliacao = querySnapshot.size + 1;
+
       const docRef = await addDoc(collection(db, "avaliacoes"), {
         codigoPaciente: paciente.codigoPaciente,
         nomePaciente: paciente.nomeCompleto,
@@ -92,15 +93,15 @@ const AvaliacaoMando = ({ paciente, onGerarPlano }) => {
         respostas,
         totalPontos: calcularTotal(),
         observacoes,
-        numeroAvaliacao // ✅ adiciona número da avaliação
+        numeroAtendimento,
+        numeroAvaliacao
       });
 
-      // 3. Atualiza o ID da avaliação
       await updateDoc(doc(db, "avaliacoes", docRef.id), {
         idAvaliacao: docRef.id
       });
 
-      setIdAvaliacao(docRef.id); // Define o ID da avaliação
+      setIdAvaliacao(docRef.id);
       setMensagemSucesso(`Avaliação ${numeroAvaliacao} registrada com sucesso!`);
     } catch (error) {
       console.error("Erro ao salvar a avaliação:", error);
@@ -123,34 +124,59 @@ const AvaliacaoMando = ({ paciente, onGerarPlano }) => {
         observacoes,
         avaliador,
         dataAvaliacao,
-        idAvaliacao // Adicionado o ID da avaliação
+        idAvaliacao
       };
 
-      onGerarPlano(dadosFormatados); // Passa os dados formatados para a função de geração do plano terapêutico
+      onGerarPlano(dadosFormatados);
     }
   };
 
+   // ✅ Buscar número de atendimento da coleção "atendimentos"
+   useEffect(() => {
+    const buscarNumeroAtendimento = async () => {
+      const q = query(
+        collection(db, "atendimentos"),
+        where("codigoPaciente", "==", paciente.codigoPaciente)
+      );
+      const querySnapshot = await getDocs(q);
+      setNumeroAtendimento(querySnapshot.size + 1);
+    };
+
+    if (paciente) {
+      buscarNumeroAtendimento();
+    }
+  }, [paciente]);
+  
   return (
-    <div className="max-w-5xl mx-auto mt-10 p-8 bg-white rounded-2xl shadow-xl">
+    <div className="container-avaliacao">
       <h2 className="text-3xl font-bold text-gray-800 mb-8 border-b pb-4">Avaliação - Mando Nível 1</h2>
 
       <form onSubmit={salvarAvaliacao} className="space-y-8">
         {/* Dados do Paciente */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="card-dados-paciente">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Código do Paciente</label>
+            <label className="input-group-avaliacao">Número de Atendimento</label>
+            <input
+              name="numeroAtendimento"
+              value={numeroAtendimento}
+              readOnly
+              className="input-avaliacao bg-gray-100"
+            />
+          </div>
+          <div>
+            <label className="card-dados-paciente">Código do Paciente</label>
             <input type="text" value={paciente.codigoPaciente} readOnly className="w-full border p-2 rounded-lg" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Nome do Paciente</label>
+            <label className="card-dados-paciente">Nome do Paciente</label>
             <input type="text" value={paciente.nomeCompleto} readOnly className="w-full border p-2 rounded-lg" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Data da Avaliação</label>
+            <label className="card-dados-paciente">Data da Avaliação</label>
             <input type="date" value={dataAvaliacao} readOnly className="w-full border p-2 rounded-lg" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Avaliador</label>
+            <label className="card-dados-paciente">Avaliador</label>
             <input
               type="text"
               name="avaliador"
@@ -160,6 +186,7 @@ const AvaliacaoMando = ({ paciente, onGerarPlano }) => {
               className="w-full border p-2 rounded-lg"
             />
           </div>
+          <hr className="divider" />
         </div>
 
         {/* Perguntas */}
@@ -199,18 +226,29 @@ const AvaliacaoMando = ({ paciente, onGerarPlano }) => {
 
         {/* Botões */}
         <div className="flex gap-6">
-          <button type="submit" className="bg-blue-500 text-white py-2 px-6 rounded-md">Salvar Avaliação</button>
+          <button type="submit" className="botao-salvar-avaliacao">💾 Salvar Avaliação</button>
           <button
             type="button"
             onClick={gerarPlanoTerapeutico}
-            className="bg-green-500 text-white py-2 px-6 rounded-md"
+            className="botao-gerar-plano-avaliacao"
           >
-            Gerar Plano Terapêutico
+          📋 Gerar Plano Terapêutico
+          </button>
+        </div>
+
+        {/* Botão de Voltar */}
+        <div className="space-y-4">
+          <button
+            type="button"
+            onClick={onVoltar} // Chama a função onVoltar para voltar para a tela anterior
+            className="botao-voltar-avaliacao "
+          >
+          🔙 Voltar
           </button>
         </div>
 
         {/* Mensagem de Sucesso */}
-        {mensagemSucesso && <div className="text-green-500 mt-4">{mensagemSucesso}</div>}
+        {mensagemSucesso && <div className="mensagem-sucesso">{mensagemSucesso}</div>}
       </form>
     </div>
   );
