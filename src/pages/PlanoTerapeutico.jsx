@@ -81,7 +81,7 @@ const gerarRecomendacoesIA = async (avaliacao) => {
   }
 };
 
-const PlanoTerapeutico = ({ avaliacao, paciente, onVoltar }) => {
+const PlanoTerapeutico = ({ avaliacao, paciente, onVoltar, numeroAtendimento }) => {
   const [plano, setPlano] = useState(""); // Variável de estado para armazenar o plano
   const [carregando, setCarregando] = useState(false);
   const pdfRef = useRef();
@@ -137,6 +137,7 @@ const PlanoTerapeutico = ({ avaliacao, paciente, onVoltar }) => {
       <div ref={pdfRef} className="p-6">
         <h1 className="plano-terapeutico-titulo">Plano Terapêutico</h1>
         <div className="plano-terapeutico-dados">
+        <p><strong>Nr. atendimento:</strong> {numeroAtendimento}</p>
           <p><strong>Nome do Paciente:</strong> {paciente.nomeCompleto}</p>
           <p><strong>Código do Paciente:</strong> {paciente.codigoPaciente}</p>
           <p><strong>Data de Nascimento:</strong> {formatarData(paciente.dataNascimento)}</p>

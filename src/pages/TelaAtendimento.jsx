@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { collection, getDocs, query, where, addDoc } from "firebase/firestore";
-import { db } from "../firebase/firebaseConfig"; // ajuste se necessário
-import AvaliacaoMando from './AvaliacaoMando'; // ou o caminho correto
-
+import { db } from "../firebase/firebaseConfig";
 
 const TelaAtendimento = ({ paciente, onVoltar, onAvancar }) => {
   const [formData, setFormData] = useState({
@@ -19,38 +17,36 @@ const TelaAtendimento = ({ paciente, onVoltar, onAvancar }) => {
     numeroAtendimento: 0,
   });
 
+  const [isLoading, setIsLoading] = useState(false);
+
   useEffect(() => {
-    const fetchNumeroAtendimento = async () => {
+    const carregarDadosPacienteEAtendimento = async () => {
       if (paciente?.codigoPaciente) {
         const q = query(
           collection(db, "atendimentos"),
           where("codigoPaciente", "==", paciente.codigoPaciente)
         );
         const querySnapshot = await getDocs(q);
-        const numeroAtendimento = querySnapshot.size; // número sequencial
-        setFormData((prevData) => ({
-          ...prevData,
-          numeroAtendimento: numeroAtendimento,
-        }));
+        const numeroAtendimento = querySnapshot.size + 1; // Incrementa o número de atendimento
+
+        setFormData({
+          codigoPaciente: paciente.codigoPaciente || "",
+          nomeCompleto: paciente.nomeCompleto || "",
+          dataNascimento: paciente.dataNascimento || "",
+          genero: paciente.genero || "",
+          responsavel: paciente.responsavel || "",
+          parentesco: paciente.parentesco || "",
+          telefone: paciente.telefone || "",
+          email: paciente.email || "",
+          endereco: paciente.endereco || "",
+          observacoes: paciente.observacoes || "",
+          numeroAtendimento, // Atribui o número de atendimento
+        });
       }
     };
 
     if (paciente) {
-      setFormData({
-        codigoPaciente: paciente.codigoPaciente || "",
-        nomeCompleto: paciente.nomeCompleto || "",
-        dataNascimento: paciente.dataNascimento || "",
-        genero: paciente.genero || "",
-        responsavel: paciente.responsavel || "",
-        parentesco: paciente.parentesco || "",
-        telefone: paciente.telefone || "",
-        email: paciente.email || "",
-        endereco: paciente.endereco || "",
-        observacoes: paciente.observacoes || "",
-        numeroAtendimento: 0,
-      });
-
-      fetchNumeroAtendimento();
+      carregarDadosPacienteEAtendimento();
     }
   }, [paciente]);
 
@@ -59,32 +55,31 @@ const TelaAtendimento = ({ paciente, onVoltar, onAvancar }) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleAvancar = async () => {
+  const salvarAtendimento = async () => {
+    if (!formData.codigoPaciente || !formData.nomeCompleto) {
+      alert("Preencha o Código do Paciente e Nome Completo antes de salvar.");
+      return false;
+    }
+
+    setIsLoading(true);
     try {
-      // Salva os dados do atendimento no Firebase
       await addDoc(collection(db, "atendimentos"), {
         ...formData,
         dataAtendimento: new Date().toISOString(),
       });
-
-      // Passa os dados necessários para a tela de avaliação
-      onAvancar(formData);  // Passe o objeto completo de dados
+      return true;
     } catch (error) {
       console.error("Erro ao salvar atendimento:", error);
+      return false;
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleSalvar = async () => {
-    try {
-      // Salva os dados do atendimento no Firebase
-      await addDoc(collection(db, "atendimentos"), {
-        ...formData,
-        dataAtendimento: new Date().toISOString(),
-      });
-
-      alert("Atendimento salvo com sucesso!");
-    } catch (error) {
-      console.error("Erro ao salvar atendimento:", error);
+  const handleAvancar = async () => {
+    const sucesso = await salvarAtendimento();
+    if (sucesso) {
+      onAvancar(formData); // Envia os dados incluindo o número do atendimento
     }
   };
 
@@ -96,13 +91,9 @@ const TelaAtendimento = ({ paciente, onVoltar, onAvancar }) => {
         <form className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div>
             <label className="input-group-atendimento">Número do Atendimento</label>
-            <input
-              name="numeroAtendimento"
-              value={formData.numeroAtendimento}
-              readOnly
-              className="input-atendimento bg-gray-100"
-            />
+            <p className="input-atendimento bg-gray-100">{formData.numeroAtendimento}</p>
           </div>
+
           <div>
             <label className="input-group-atendimento">Código do Paciente</label>
             <input
@@ -112,6 +103,7 @@ const TelaAtendimento = ({ paciente, onVoltar, onAvancar }) => {
               className="input-atendimento"
             />
           </div>
+
           <div>
             <label className="input-group-atendimento">Nome Completo</label>
             <input
@@ -210,21 +202,25 @@ const TelaAtendimento = ({ paciente, onVoltar, onAvancar }) => {
             />
           </div>
         </form>
+
         <div className="flex gap-6">
-          <button onClick={onVoltar} className=" botao-voltar-atendimento">
+          <button
+            onClick={onVoltar}
+            className="botao-voltar-atendimento"
+            disabled={isLoading}
+          >
             🔙 Voltar
           </button>
-          <button onClick={handleSalvar} className="botao-salvar-atendimento">
-            💾 Salvar Atendimento
-          </button>
-          <button onClick={handleAvancar} className="botao-avancar-atendimento">
+          <button
+            onClick={handleAvancar}
+            className="botao-avancar-atendimento"
+            disabled={isLoading}
+          >
             ✅ Avançar para Avaliação
           </button>
-         
         </div>
       </div>
     </div>
   );
 };
-
 export default TelaAtendimento;

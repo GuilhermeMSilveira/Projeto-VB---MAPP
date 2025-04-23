@@ -428,7 +428,7 @@ button {
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s;
-  margin-left: 3rem;  /* Altere o valor conforme necessário */
+  margin-left: 22rem;  /* Altere o valor conforme necessário */
   width: 270px; /* ou qualquer valor desejado, ex: 100%, 20rem, auto */
   position: relative;
   top: 15px;  /* Mova o botão para cima de maneira controlada */

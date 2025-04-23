@@ -9,6 +9,7 @@ export default function App() {
   const [etapa, setEtapa] = useState("localizar");
   const [pacienteSelecionado, setPacienteSelecionado] = useState(null);
   const [dadosAvaliacao, setDadosAvaliacao] = useState(null);
+  const [numeroAtendimento, setNumeroAtendimento] = useState(0); // Novo estado para número de atendimento
 
   return (
     <div className="p-4">
@@ -17,6 +18,7 @@ export default function App() {
         <PacienteConsulta
           onSelecionar={(paciente) => {
             setPacienteSelecionado(paciente);
+            setNumeroAtendimento(paciente.numeroAtendimento || 0); // Atualiza o número de atendimento se existir
             setEtapa("visualizar");
           }}
           onCadastrarNovo={() => setEtapa("cadastrar")}
@@ -28,6 +30,7 @@ export default function App() {
         <PacienteCadastro
           onSalvar={(paciente) => {
             setPacienteSelecionado(paciente);
+            setNumeroAtendimento(paciente.numeroAtendimento || 0); // Atualiza o número de atendimento se existir
             setEtapa("visualizar");
           }}
           onCancelar={() => setEtapa("localizar")}
@@ -38,9 +41,14 @@ export default function App() {
       {etapa === "visualizar" && pacienteSelecionado && (
         <TelaAtendimento
           paciente={pacienteSelecionado}
+          numeroAtendimento={numeroAtendimento} // Passa o número de atendimento para a tela
           onEditar={() => setEtapa("cadastrar")}
-          onAvancar={() => setEtapa("avaliar")}
           onVoltar={() => setEtapa("localizar")}
+          onAvancar={(dadosAtendimento) => {
+            setPacienteSelecionado(dadosAtendimento);
+            setNumeroAtendimento(dadosAtendimento.numeroAtendimento || 0); // Atualiza o número
+            setEtapa("avaliar");
+          }}
         />
       )}
 
@@ -48,11 +56,11 @@ export default function App() {
       {etapa === "avaliar" && pacienteSelecionado && (
         <AvaliacaoMando
           paciente={pacienteSelecionado}
-          numeroAtendimento={pacienteSelecionado.numeroAtendimento} // Passando o numeroAtendimento
+          numeroAtendimento={numeroAtendimento} // Passa o número para Avaliação
           onVoltar={() => setEtapa("visualizar")}
           onGerarPlano={(avaliacao) => {
             setDadosAvaliacao(avaliacao); // Salva os dados da avaliação
-            setEtapa("plano"); // Muda para a etapa do plano terapêutico
+            setEtapa("plano"); // Avança para o plano terapêutico
           }}
         />
       )}
@@ -62,6 +70,7 @@ export default function App() {
         <PlanoTerapeutico
           paciente={pacienteSelecionado}
           avaliacao={dadosAvaliacao}
+          numeroAtendimento={numeroAtendimento} // Também é passado aqui
           onVoltar={() => setEtapa("avaliar")}
         />
       )}

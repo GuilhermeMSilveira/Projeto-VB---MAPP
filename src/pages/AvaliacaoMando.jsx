@@ -50,16 +50,14 @@ const perguntasMandoNivel1 = [
     ],
   }
 ];
-const AvaliacaoMando = ({ paciente, onGerarPlano, onVoltar }) => {
+const AvaliacaoMando = ({ paciente,numeroAtendimento, onGerarPlano, onVoltar }) => {
   const [respostas, setRespostas] = useState(perguntasMandoNivel1.map(() => ({ valor: "", descricao: "" })));
   const [dataAvaliacao, setDataAvaliacao] = useState("");
   const [mensagemSucesso, setMensagemSucesso] = useState("");
   const [observacoes, setObservacoes] = useState("");
   const [avaliador, setAvaliador] = useState("");
   const [idAvaliacao, setIdAvaliacao] = useState(""); // Esta linha estava faltando
-  const [numeroAtendimento, setNumeroAtendimento] = useState(0);
-
-
+  
   useEffect(() => {
     const dataAtual = new Date().toISOString().split('T')[0];
     setDataAvaliacao(dataAtual);
@@ -131,21 +129,7 @@ const AvaliacaoMando = ({ paciente, onGerarPlano, onVoltar }) => {
     }
   };
 
-   // ✅ Buscar número de atendimento da coleção "atendimentos"
-   useEffect(() => {
-    const buscarNumeroAtendimento = async () => {
-      const q = query(
-        collection(db, "atendimentos"),
-        where("codigoPaciente", "==", paciente.codigoPaciente)
-      );
-      const querySnapshot = await getDocs(q);
-      setNumeroAtendimento(querySnapshot.size + 1);
-    };
 
-    if (paciente) {
-      buscarNumeroAtendimento();
-    }
-  }, [paciente]);
   
   return (
     <div className="container-avaliacao">
