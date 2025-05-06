@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import PacienteConsulta from "./pages/PacienteConsulta";
+import TelaLocalizarPaciente from "./pages/TelaLocalizarPaciente";
 import TelaAtendimento from "./pages/TelaAtendimento";
-import PacienteCadastro from "./pages/PacienteCadastro";
-import AvaliacaoMando from "./pages/AvaliacaoMando";
-import PlanoTerapeutico from "./pages/PlanoTerapeutico";
+import TelaCadastroPaciente from "./pages/TelaCadastroPaciente";
+import TelaAvaliacaoMando from "./pages/TelaAvaliacaoMando";
+import TelaPlanoTerapeutico from "./pages/TelaPlanoTerapeutico";
 
 export default function App() {
   const [etapa, setEtapa] = useState("localizar");
@@ -15,7 +15,7 @@ export default function App() {
     <div className="p-4">
       {/* Etapa de Localizar Paciente */}
       {etapa === "localizar" && (
-        <PacienteConsulta
+        <TelaLocalizarPaciente
           onSelecionar={(paciente) => {
             setPacienteSelecionado(paciente);
             setNumeroAtendimento(paciente.numeroAtendimento || 0); // Atualiza o número de atendimento se existir
@@ -27,7 +27,7 @@ export default function App() {
 
       {/* Etapa de Cadastro de Paciente */}
       {etapa === "cadastrar" && (
-        <PacienteCadastro
+        <TelaCadastroPaciente
           onSalvar={(paciente) => {
             setPacienteSelecionado(paciente);
             setNumeroAtendimento(paciente.numeroAtendimento || 0); // Atualiza o número de atendimento se existir
@@ -54,7 +54,7 @@ export default function App() {
 
       {/* Etapa de Avaliação */}
       {etapa === "avaliar" && pacienteSelecionado && (
-        <AvaliacaoMando
+        <TelaAvaliacaoMando
           paciente={pacienteSelecionado}
           numeroAtendimento={numeroAtendimento} // Passa o número para Avaliação
           onVoltar={() => setEtapa("visualizar")}
@@ -67,7 +67,7 @@ export default function App() {
 
       {/* Etapa de Plano Terapêutico */}
       {etapa === "plano" && pacienteSelecionado && dadosAvaliacao && (
-        <PlanoTerapeutico
+        <TelaPlanoTerapeutico
           paciente={pacienteSelecionado}
           avaliacao={dadosAvaliacao}
           numeroAtendimento={numeroAtendimento} // Também é passado aqui

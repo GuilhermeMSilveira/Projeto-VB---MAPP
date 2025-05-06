@@ -81,7 +81,7 @@ const gerarRecomendacoesIA = async (avaliacao) => {
   }
 };
 
-const PlanoTerapeutico = ({ avaliacao, paciente, onVoltar, numeroAtendimento }) => {
+const TelaPlanoTerapeutico = ({ avaliacao, paciente, onVoltar, numeroAtendimento }) => {
   const [plano, setPlano] = useState(""); // Variável de estado para armazenar o plano
   const [carregando, setCarregando] = useState(false);
   const pdfRef = useRef();
@@ -184,4 +184,4 @@ const PlanoTerapeutico = ({ avaliacao, paciente, onVoltar, numeroAtendimento }) 
   );
 };
 
-export default PlanoTerapeutico;
+export default TelaPlanoTerapeutico;

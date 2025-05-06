@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { db } from '../firebase/firebaseConfig'; // Importe a configuração do Firebase
+import { db } from '../services/ConfiguracaoFirebase'; // Importe a configuração do Firebase
 import { collection, addDoc, updateDoc, doc, query, where, getDocs } from 'firebase/firestore';
 
 
@@ -50,7 +50,7 @@ const perguntasMandoNivel1 = [
     ],
   }
 ];
-const AvaliacaoMando = ({ paciente,numeroAtendimento, onGerarPlano, onVoltar }) => {
+const TelaAvaliacaoMando = ({ paciente,numeroAtendimento, onGerarPlano, onVoltar }) => {
   const [respostas, setRespostas] = useState(perguntasMandoNivel1.map(() => ({ valor: "", descricao: "" })));
   const [dataAvaliacao, setDataAvaliacao] = useState("");
   const [mensagemSucesso, setMensagemSucesso] = useState("");
@@ -238,4 +238,4 @@ const AvaliacaoMando = ({ paciente,numeroAtendimento, onGerarPlano, onVoltar }) 
   );
 };
 
-export default AvaliacaoMando;
+export default TelaAvaliacaoMando;

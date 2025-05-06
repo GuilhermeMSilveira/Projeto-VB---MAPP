@@ -1,18 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { db } from "../firebase/firebaseConfig";
-import {
-  collection,
-  addDoc,
-  doc,
-  updateDoc,
-  getDoc,
-  query,
-  orderBy,
-  limit,
-  getDocs,
-} from "firebase/firestore";
+import { db } from "../services/ConfiguracaoFirebase";
+import {collection, addDoc, doc, updateDoc, getDoc, query, orderBy, limit, getDocs,} from "firebase/firestore";
 
-const PacienteCadastro = ({ paciente, onCancelar }) => {
+const TelaCadastroPaciente = ({ paciente, onCancelar }) => {
   const [dados, setDados] = useState({
     codigoPaciente: "",
     nomeCompleto: "",
@@ -210,4 +200,4 @@ const PacienteCadastro = ({ paciente, onCancelar }) => {
   );
 };
 
-export default PacienteCadastro;
+export default TelaCadastroPaciente;

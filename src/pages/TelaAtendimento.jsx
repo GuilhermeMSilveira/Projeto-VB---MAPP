@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { collection, getDocs, query, where, addDoc } from "firebase/firestore";
-import { db } from "../firebase/firebaseConfig";
+import { collection, getDocs, query, addDoc } from "firebase/firestore";
+import { db } from "../services/ConfiguracaoFirebase";
 
 const TelaAtendimento = ({ paciente, onVoltar, onAvancar }) => {
   const [formData, setFormData] = useState({
@@ -22,12 +22,10 @@ const TelaAtendimento = ({ paciente, onVoltar, onAvancar }) => {
   useEffect(() => {
     const carregarDadosPacienteEAtendimento = async () => {
       if (paciente?.codigoPaciente) {
-        const q = query(
-          collection(db, "atendimentos"),
-          where("codigoPaciente", "==", paciente.codigoPaciente)
-        );
+        // Consulta para pegar o total de atendimentos na coleção, sem filtrar por paciente
+        const q = query(collection(db, "atendimentos"));
         const querySnapshot = await getDocs(q);
-        const numeroAtendimento = querySnapshot.size + 1; // Incrementa o número de atendimento
+        const numeroAtendimento = querySnapshot.size + 1; // Incrementa o número de atendimento com base no total
 
         setFormData({
           codigoPaciente: paciente.codigoPaciente || "",
@@ -40,7 +38,7 @@ const TelaAtendimento = ({ paciente, onVoltar, onAvancar }) => {
           email: paciente.email || "",
           endereco: paciente.endereco || "",
           observacoes: paciente.observacoes || "",
-          numeroAtendimento, // Atribui o número de atendimento
+          numeroAtendimento, // Atribui o número de atendimento global
         });
       }
     };

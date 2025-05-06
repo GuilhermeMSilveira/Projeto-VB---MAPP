@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { db } from "../firebase/firebaseConfig";
+import { db } from "../services/ConfiguracaoFirebase";
 import { collection, getDocs, query, where } from "firebase/firestore";
 
-const PacienteConsulta = ({ onSelecionar, onCadastrarNovo }) => {
+const TelaLocalizarPaciente = ({ onSelecionar, onCadastrarNovo }) => {
   const [filtro, setFiltro] = useState({
     nome: "",
     codigo: "",
@@ -126,4 +126,4 @@ const PacienteConsulta = ({ onSelecionar, onCadastrarNovo }) => {
   );
 };
 
-export default PacienteConsulta;
+export default TelaLocalizarPaciente;
