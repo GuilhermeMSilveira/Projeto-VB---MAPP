@@ -91,17 +91,10 @@ const TelaAtendimento = ({ paciente, onVoltar, onAvancar }) => {
             <label className="input-group-atendimento">Número do Atendimento</label>
             <p className="input-atendimento bg-gray-100">{formData.numeroAtendimento}</p>
           </div>
-
           <div>
             <label className="input-group-atendimento">Código do Paciente</label>
-            <input
-              name="codigoPaciente"
-              value={formData.codigoPaciente}
-              onChange={handleChange}
-              className="input-atendimento"
-            />
+            <p className="input-atendimento bg-gray-100">{formData.codigoPaciente}</p>
           </div>
-
           <div>
             <label className="input-group-atendimento">Nome Completo</label>
             <input

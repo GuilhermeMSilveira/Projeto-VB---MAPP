@@ -79,47 +79,48 @@ button {
 /* Layout do formulário de busca */
 .formulario-busca {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 3 colunas iguais */
-  gap: 1rem;                             /* Espaço entre os elementos */
+  grid-template-columns: 1fr; /* Um item por linha por padrão */
+  gap: 1rem;
   width: 100%;
   max-width: 900px;
-  margin-inline: auto;                  /* Centraliza horizontalmente */
-
+  margin-inline: auto;
 }
-/* Estilo para o campo Código do Paciente */
+
+/* Responsividade para tablets e desktops */
+@media (min-width: 768px) {
+  .formulario-busca {
+    grid-template-columns: repeat(3, 1fr); /* 3 colunas em telas maiores */
+  }
+}
+
+/* Estilo para os campos de entrada */
+.input-codigo-paciente, .input-nome-completo, .input-data-nascimento {
+  padding: 0.75rem;
+  font-size: 1rem;
+  background-color: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  width: 100%;
+  box-sizing: border-box; /* Para garantir que o padding não afete a largura */
+}
+
 .input-codigo-paciente {
-  padding: 0.75rem;
-  font-size: 1rem;
-  background-color: #f3f4f6; /* cinza claro para campo readonly */
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  width: 100%;
   max-width: 250px;
-}
-/* Estilo para o campo Nome Completo */
-.input-nome-completo {
-  padding: 0.75rem;
-  font-size: 1rem;
-  background-color: #f3f4f6; /* cinza claro para campo readonly */
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  width: 100%;
-  max-width: 400px;
-  margin-left: 1rem;  /* Altere o valor conforme necessário */
-}
-/* Estilo para o campo Data de Nascimento */
-.input-data-nascimento {
-  padding: 0.75rem;
-  font-size: 1rem;
-  border: 1px solid #d1d5db;
-  background-color: #f3f4f6; /* cinza claro para campo readonly */
-  border-radius: 8px;
-  width: 100%;
-  max-width: 250px;
-  margin-left: 2rem;  /* Altere o valor conforme necessário */
 }
 
-/* Estilo para o botão de buscar */
+.input-nome-completo, .input-data-nascimento {
+  max-width: 400px;
+}
+
+.input-nome-completo {
+  margin-left: 1rem;
+}
+
+.input-data-nascimento {
+  margin-left: 2rem;
+}
+
+/* Estilo para os botões */
 .botao-buscar {
   padding: 0.75rem 1.5rem;
   font-size: 1rem;
@@ -128,11 +129,11 @@ button {
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s;
-  margin-left: 0rem;  /* Altere o valor conforme necessário */
-  margin-top: 0.5rem; /* Adiciona espaçamento acima do botão */
+  margin-top: 0.5rem;
+  width: 100%;
+  max-width: 250px; /* Limita o tamanho máximo do botão */
+  box-sizing: border-box; /* Para garantir que o padding não afete a largura */
 }
-
-/* Estilo para o botão de cadastrar paciente */
 .botao-cadastrar {
   padding: 0.75rem 1.5rem;
   font-size: 1rem;
@@ -141,32 +142,31 @@ button {
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s;
-  margin-left: 1rem;  /* Altere o valor conforme necessário */
-  margin-top: 0.5rem; /* Adiciona espaçamento acima do botão */
+  margin-top: 0.5rem;
+  width: 100%;
+  max-width: 250px; /* Limita o tamanho máximo do botão */
+  box-sizing: border-box; /* Para garantir que o padding não afete a largura */
+  transform: translateX(-15px); /* Move o botão 10px para a esquerda */
 }
 
-/* Ajustando a lista de pacientes */
+.botao-cadastrar {
+  margin-left: 1rem;
+}
+
+/* Estilo para a lista de pacientes */
 .pacientes-lista {
-  max-height: 400px;      /* Limita a altura da lista de pacientes */
-  overflow-y: auto;       /* Adiciona barra de rolagem se necessário */
+  max-height: 400px;
+  overflow-y: auto;
   width: 100%;
   margin-top: 2rem;
   border: 1px solid #ddd;
   border-radius: 8px;
-  padding: 0; /* Garante que não tenha padding extra */
+  padding: 0;
 }
 
 .pacientes-lista ul li {
   border-bottom: 1px solid #ddd;
-  padding-left: 1rem;  /* Mover para a direita */
-  padding-right: 1rem; /* Se quiser manter equilíbrio */
-  padding-top: 0.75rem;
-  padding-bottom: 0.75rem;
-}
-
-/* Remove a linha do último item */
-.pacientes-lista ul li:last-child {
-  border-bottom: none;
+  padding: 0.75rem 1rem;
 }
 
 .paciente-item {
@@ -180,6 +180,28 @@ button {
   background-color: #f4f4f4;
 }
 
+/* Melhorias para telas pequenas (móveis) */
+
+  .formulario-busca {
+    grid-template-columns: 1fr; /* Um campo por linha */
+  }
+
+  .input-codigo-paciente, .input-nome-completo, .input-data-nascimento {
+    max-width: 100%; /* Campos ocupam toda a largura em telas pequenas */
+  }
+
+  .botao-buscar, .botao-cadastrar {
+    max-width: 100%; /* Botões ocupam toda a largura */
+  }
+
+  .input-nome-completo {
+    margin-left: 0; /* Remover o espaço extra em telas pequenas */
+  }
+
+  .input-data-nascimento {
+    margin-left: 0; /* Remover o espaço extra em telas pequenas */
+  }
+
 
 /* Container Tela Cadastro */
 .container {
@@ -187,17 +209,18 @@ button {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: #f9fafb; /* Cor de fundo mais suave */
+  background-color: #f9fafb;
   padding: 20px;
 }
 
 .form-container {
   background-color: #fff;
   width: 100%;
-  max-width: 900px; /* Limita a largura */
+  max-width: 900px;
   padding: 30px;
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
 }
 
 .title {
@@ -212,9 +235,7 @@ button {
   display: flex;
   flex-direction: column;
   margin-bottom: 10px;
-  
 }
-
 
 .label {
   font-size: 1rem;
@@ -251,10 +272,9 @@ button {
 .message {
   text-align: center;
   font-size: 1rem;
-  font-weight: medium;
+  font-weight: 500;
   margin-top: 20px;
 }
-/* Estilo para o botão de buscar */
 
 .success {
   color: #10b981;
@@ -264,35 +284,77 @@ button {
   color: #ef4444;
 }
 
+/* Estilo do container dos botões */
 .submit-container {
   display: flex;
-  justify-content: 500px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 1rem;
   margin-top: 30px;
 }
 
-.submit-button {
-  background-color: #1e40af;
-  color: white;
-  padding: 14px 30px;
-  border-radius: 5px;
-  font-size: 1rem;
-  margin-left: 1rem;  /* Altere o valor conforme necessário */
-  cursor: pointer;
+/* Container dos botões */
+.submit-container {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  flex-wrap: wrap; /* Permite quebra em telas pequenas */
+  margin-top: 30px;
 }
+
+/* Botão enviar */
+.submit-button,
 .botao-Voltar {
-  padding: 14px 30px;
-  font-size: 1rem;
   background-color: #1e40af;
   color: white;
+  padding: 14px 30px;
+  font-size: 1rem;
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s;
-  margin-left: 12rem;  /* Altere o valor conforme necessário */
+  width: 100%;
+  max-width: 250px;
+  box-sizing: border-box;
 }
 
-.submit-button:hover {
+.submit-button:hover,
+.botao-Voltar:hover {
   background-color: #1d4ed8;
 }
+
+@media (min-width: 769px) {
+  .botao-Voltar {
+    margin-right: 320px; /* Ou ajuste como margin-left negativa */
+  }
+}
+
+/* Responsivo para celular */
+@media (max-width: 768px) {
+  .submit-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .submit-button,
+  .botao-Voltar {
+    max-width: 100%;
+  }
+}
+
+
+/* Responsivo para telas pequenas */
+@media (max-width: 768px) {
+  .submit-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .submit-button, .botao-Voltar {
+    width: 100%;
+    margin-left: 0;
+  }
+}
+
 
 /* Container Tela Atendimento */
 .container-atendimento {
@@ -300,18 +362,17 @@ button {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: #f9fafb; /* Cor de fundo mais suave */
+  background-color: #f9fafb;
   padding: 20px;
 }
 
 .form-container-atendimento {
   background-color: #fff;
   width: 100%;
-  max-width: 900px; /* Limita a largura */
+  max-width: 900px;
   padding: 30px;
   border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1)
-  
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .title-atendimento {
@@ -326,9 +387,7 @@ button {
   display: flex;
   flex-direction: column;
   margin-bottom: 10px;
-  
 }
-
 
 .label-atendimento {
   font-size: 1rem;
@@ -336,14 +395,15 @@ button {
   margin-bottom: 8px;
 }
 
-.input-atendimento {
+.input-atendimento,
+.textarea-atendimento {
   padding: 12px;
   border: 1px solid #ddd;
   border-radius: 8px;
   font-size: 1rem;
-  transition: border-color 0.3s ease;
   width: 100%;
-
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
 }
 
 .input-atendimento:focus {
@@ -366,7 +426,6 @@ button {
   font-weight: medium;
   margin-top: 20px;
 }
-/* Estilo para o botão de buscar */
 
 .success-atendimento {
   color: #10b981;
@@ -376,23 +435,18 @@ button {
   color: #ef4444;
 }
 
+/* Container dos botões */
 .submit-container-atendimento {
   display: flex;
-  justify-content: 500px;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
   margin-top: 30px;
 }
 
-.submit-button-atendimento {
-  background-color: #1e40af;
-  color: white;
-  padding: 14px 30px;
-  border-radius: 5px;
-  font-size: 1rem;
-  margin-left: 1rem;  /* Altere o valor conforme necessário */
-  cursor: pointer;
-}
-
-.botao-voltar-atendimento {
+/* Botões responsivos */
+.botao-voltar-atendimento
+ {
   padding: 14px 30px;
   font-size: 1rem;
   background-color: #1e40af;
@@ -400,13 +454,15 @@ button {
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s;
-  margin-left: 1rem;  /* Altere o valor conforme necessário */
-  width: 250px; /* ou qualquer valor desejado, ex: 100%, 20rem, auto */
-  position: relative;
-  top: 15px;  /* Mova o botão para cima de maneira controlada */
+  width: 100%;
+  max-width: 260px;
+  box-sizing: border-box;
+  margin-top: 5px;
+  margin-left: 70px;
 }
 
-.botao-salvar-atendimento {
+.botao-avancar-atendimento
+ {
   padding: 14px 30px;
   font-size: 1rem;
   background-color: #1e40af;
@@ -414,31 +470,38 @@ button {
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s;
-  margin-left: 3rem;  /* Altere o valor conforme necessário */
-  width: 250px; /* ou qualquer valor desejado, ex: 100%, 20rem, auto */
-  position: relative;
-  top: 15px;  /* Mova o botão para cima de maneira controlada */
+  width: 100%;
+  max-width: 260px;
+  margin-left: 70px;
+  margin-top: 20px; 
+  box-sizing: border-box;
 }
 
-.botao-avancar-atendimento{
-  padding: 14px 30px;
-  font-size: 1rem;
-  background-color: #1e40af;
-  color: white;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  margin-left: 22rem;  /* Altere o valor conforme necessário */
-  width: 270px; /* ou qualquer valor desejado, ex: 100%, 20rem, auto */
-  position: relative;
-  top: 15px;  /* Mova o botão para cima de maneira controlada */
-}
-
+/* Hover effect */
+.botao-voltar-atendimento:hover,
+.botao-salvar-atendimento:hover,
+.botao-avancar-atendimento:hover,
 .submit-button-atendimento:hover {
-  background-color: #1d4ed8;
+  background-color: #1e40af;
+}
+
+/* Ajuste para layout desktop */
+@media (min-width: 768px) {
+  .submit-container-atendimento {
+    justify-content: space-between; /* Distribui os botões */
+
+  }
+
+  .botao-voltar-atendimento {
+    margin-left: 0;
+  }
+
+  .botao-avancar-atendimento {
+    margin-left: 380px;     /* Empurra o botão para a direita */
+  }
+
 }
 /* Layout da Avaliacao */
-
 .container-avaliacao {
   max-width: 1100px;
   margin: 40px auto;
@@ -456,13 +519,6 @@ button {
   padding-bottom: 1rem;
   border-bottom: 2px solid #e5e7eb; /* Gray-200 */
 }
-card-dados-paciente {
-  background-color: #f9fafb;
-  border: 1px solid #e5e7eb;
-  padding: 24px;
-  border-radius: 12px;
-  margin-bottom: 32px;
-}
 
 .card-dados-paciente h3 {
   font-size: 1.25rem;
@@ -476,11 +532,13 @@ card-dados-paciente {
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 16px;
 }
+
 .divider {
   border: none;
   border-top: 2px solid #d1d5db;
   margin: 55px 0;
 }
+
 .container-avaliacao label {
   font-weight: 500;
   color: #374151; /* Gray-700 */
@@ -503,6 +561,7 @@ card-dados-paciente {
   font-weight: 600;
   transition: background-color 0.2s;
 }
+
 .secao-dados-paciente {
   background-color: #f9fafb; /* Gray-50 */
   padding: 24px;
@@ -518,13 +577,13 @@ card-dados-paciente {
   margin-bottom: 16px;
 }
 
-
 .container-avaliacao button:hover {
   filter: brightness(0.95);
 }
 
+/* Botões */
 .btn-salvar {
-  background-color: #3b82f6; /* Blue-500 */
+  background-color: #1e40af; /* Blue-500 */
   color: white;
 }
 
@@ -533,34 +592,8 @@ card-dados-paciente {
   color: white;
 }
 
-.botao-voltar-avaliacao {
-  padding: 14px 30px;
-  font-size: 1rem;
-  background-color: #1e40af;
-  color: white;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  margin-left: 2rem;  /* Altere o valor conforme necessário */
-  width: 250px; /* ou qualquer valor desejado, ex: 100%, 20rem, auto */
-  position: relative;
-  top: -52px;  /* Mova o botão para cima de maneira controlada */
-}
-
-.botao-salvar-avaliacao {
-  padding: 14px 30px;
-  font-size: 1rem;
-  background-color: #1e40af;
-  color: white;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  margin-left: 26rem;
-  width: 250px;
-  margin-top: 25px; /* Ajuste para mover o botão para baixo */
-  margin-bottom: 10px; /* Ajuste para mover o botão para cima */
-}
-
+.botao-voltar-avaliacao,
+.botao-salvar-avaliacao,
 .botao-gerar-plano-avaliacao {
   padding: 14px 30px;
   font-size: 1rem;
@@ -568,11 +601,57 @@ card-dados-paciente {
   color: white;
   border-radius: 5px;
   cursor: pointer;
-  margin: 0;
-  width: 250px;
-  margin-left: 9rem;
-  margin-top: -10px; /* Ajuste para mover o botão para baixo */
-  margin-bottom: -10px; /* Ajuste para mover o botão para cima */
+  transition: background-color 0.3s;
+  width: 100%; /* Garante que os botões ocupem toda a largura disponível em telas pequenas */
+  max-width: 250px; /* Limita o tamanho máximo do botão */
+  margin-bottom: 15px; /* Adiciona espaçamento inferior */
+  margin-left: 80px; /* Alinha os botões à direita */
+  margin-top: 5px;
+  margin-right: 0; /* Opcional, pode garantir que não haja margem à direita */
+}
+
+
+
+.botao-salvar-avaliacao,
+.botao-gerar-plano-avaliacao {
+  background-color: #1e40af; /* Alterei o estilo para destacar o botão de salvar e gerar plano */
+}
+
+/* Responsividade */
+@media (min-width: 768px) {
+  /* Ajuste para desktop */
+  
+  .botao-voltar-avaliacao {
+    margin-left: 20px; /* Ajuste de posição horizontal */
+    position: relative;
+    top: -55px; /* Move o botão para cima (ajuste conforme necessário) */
+  }
+
+  .botao-salvar-avaliacao {
+    margin-left: 445px; /* Ajuste de posição horizontal */
+    position: relative;
+    top: 10px; /* Move o botão para cima (ajuste conforme necessário) */
+  }
+
+  .botao-gerar-plano-avaliacao {
+    margin-left: 150px; /* Ajuste de posição horizontal */
+    position: relative;
+    top: 10px; /* Move o botão para cima (ajuste conforme necessário) */
+  }
+}
+
+  /* Exibe os botões em linha (horizontalmente) no desktop */
+  .botoes-avaliacao {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px; /* Espaçamento entre os botões */
+  }
+
+@media (max-width: 768px) {
+  /* Em telas pequenas (celulares), os botões ficam em bloco e ocupam toda a largura */
+  .botoes-avaliacao {
+    display: block; /* Botões em bloco */
+  }
 }
 
 .mensagem-sucesso {
@@ -580,6 +659,7 @@ card-dados-paciente {
   color: #10b981;
   font-weight: 600;
 }
+
 .mensagem-sucesso {
   color: #38a169; /* Cor de texto verde */
   font-size: 1.1rem; /* Tamanho da fonte */
@@ -591,6 +671,7 @@ card-dados-paciente {
   border-radius: 8px; /* Bordas arredondadas */
   animation: fadeIn 0.5s ease-in-out; /* Animação para aparecer suavemente */
 }
+
 @keyframes fadeIn {
   0% {
       opacity: 0;
@@ -599,6 +680,7 @@ card-dados-paciente {
       opacity: 1;
   }
 }
+
 /* Estilos gerais do Plano Terapêutico */
 .plano-terapeutico-container {
   padding: 1.5rem; /* Espaçamento interno */
