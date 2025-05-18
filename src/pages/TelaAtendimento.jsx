@@ -209,6 +209,7 @@ const TelaAtendimento = ({ paciente, onVoltar, onAvancar }) => {
           >
             ✅ Avançar para Avaliação
           </button>
+          
         </div>
       </div>
     </div>
