@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import html2pdf from "html2pdf.js";
-import { db, collection, addDoc } from '../services/ConfiguracaoFirebase'; // ajuste o caminho conforme seu projeto
+import { db, collection, addDoc } from "../services/ConfiguracaoFirebase"; // ajuste o caminho conforme necessário
 
+// 🧠 Utilitário para calcular idade
 const calcularIdade = (dataNascimento) => {
   const hoje = new Date();
   const nascimento = new Date(dataNascimento);
@@ -11,6 +12,7 @@ const calcularIdade = (dataNascimento) => {
   return idade;
 };
 
+// 📆 Formata data no formato dd/mm/aaaa
 const formatarData = (data) => {
   const dataObj = new Date(data);
   const dia = String(dataObj.getDate()).padStart(2, '0');
@@ -19,6 +21,7 @@ const formatarData = (data) => {
   return `${dia}/${mes}/${ano}`;
 };
 
+// 🧠 Gera recomendações terapêuticas com IA (OpenAI)
 const gerarRecomendacoesIA = async (avaliacao) => {
   if (!avaliacao) return "Erro: Dados insuficientes para gerar plano.";
 
@@ -40,6 +43,20 @@ Pontuação total: ${totalPontos}
 Observações adicionais: ${avaliacao.observacoes}
 
 Escreva um plano com base nas áreas que precisam de reforço, alinhado aos princípios da Análise do Comportamento Aplicada (ABA).
+
+Organize o conteúdo com os seguintes tópicos, todos com **títulos em negrito**:
+- **Objetivo principal**
+- **Áreas de foco**
+- **Estratégias sugeridas**
+- **Atividades práticas**
+- **Materiais recomendados**
+- **Orientações finais**
+
+Inclua exemplos práticos e específicos para cada habilidade-alvo, como brinquedos, contextos naturais (refeições, higiene, brincadeira), interações com cuidadores, etc. 
+Evite exemplos genéricos ou lúdicos demais e use exemplos realistas e funcionais. 
+Destaque palavras e trechos importantes em **negrito** para facilitar a leitura.
+
+O plano deve ser claro, funcional, aplicável na rotina e adaptado ao contexto da criança com base nas respostas da avaliação.
 `;
 
   try {
@@ -69,12 +86,14 @@ Escreva um plano com base nas áreas que precisam de reforço, alinhado aos prin
   }
 };
 
+// 🧾 Componente principal
 const TelaPlanoTerapeutico = ({ avaliacao, paciente, onVoltar, numeroAtendimento, onConsultarHistorico }) => {
   const [plano, setPlano] = useState("");
   const [carregando, setCarregando] = useState(false);
   const [salvo, setSalvo] = useState(false);
   const pdfRef = useRef();
 
+  // Gera plano assim que os dados da avaliação estiverem disponíveis
   useEffect(() => {
     if (avaliacao) {
       setCarregando(true);
@@ -85,6 +104,7 @@ const TelaPlanoTerapeutico = ({ avaliacao, paciente, onVoltar, numeroAtendimento
     }
   }, [avaliacao]);
 
+  // Exporta para PDF usando html2pdf.js
   const exportarPDF = () => {
     if (!plano) {
       alert("Plano terapêutico ainda não gerado.");
@@ -103,6 +123,7 @@ const TelaPlanoTerapeutico = ({ avaliacao, paciente, onVoltar, numeroAtendimento
     }, 500);
   };
 
+  // Salva plano no Firestore
   const salvarPlanoNoFirestore = async () => {
     if (salvo) {
       alert("⚠️ Este plano já foi salvo.");
@@ -111,7 +132,6 @@ const TelaPlanoTerapeutico = ({ avaliacao, paciente, onVoltar, numeroAtendimento
 
     try {
       const dataAtual = new Date().toISOString();
-
       const planoCompleto = {
         paciente: paciente.nomeCompleto,
         codigoPaciente: paciente.codigoPaciente,
@@ -140,20 +160,26 @@ const TelaPlanoTerapeutico = ({ avaliacao, paciente, onVoltar, numeroAtendimento
 
   const idadePaciente = calcularIdade(paciente.dataNascimento);
 
+  // Formata o plano para HTML, aplicando estilos
   const formatarPlano = (texto) => {
     return texto
-      .replace(/Objetivos Terapêuticos:/g, "<h3><strong>Objetivos Terapêuticos:</strong></h3>")
-      .replace(/Estratégias de Ensino:/g, "<h3><strong>Estratégias de Ensino:</strong></h3>")
-      .replace(/Sugestões Práticas:/g, "<h3><strong>Sugestões Práticas:</strong></h3>")
-      .replace(/Acompanhamento e Avaliação:/g, "<h3><strong>Acompanhamento e Avaliação:</strong></h3>")
-      .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-      .replace(/(\d+\..+)/g, "<p>$1</p>");
+.replace(/Objetivo principal:/g, "<h3><strong>Objetivo principal:</strong></h3>")
+.replace(/Áreas de foco:/g, "<h3><strong>Áreas de foco:</strong></h3>")
+.replace(/Estratégias sugeridas:/g, "<h3><strong>Estratégias sugeridas:</strong></h3>")
+.replace(/Atividades práticas:/g, "<h3><strong>Atividades práticas:</strong></h3>")
+.replace(/Materiais recomendados:/g, "<h3><strong>Materiais recomendados:</strong></h3>")
+.replace(/Orientações finais:/g, "<h3><strong>Orientações finais:</strong></h3>")
+.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+.replace(/(\d+\..+)/g, "<p>$1</p>");
+
   };
+  
 
   return (
     <div className="plano-terapeutico-container">
       <div ref={pdfRef} className="p-6">
         <h1 className="plano-terapeutico-titulo">Plano Terapêutico</h1>
+
         <div className="plano-terapeutico-dados">
           <p><strong>Nr. atendimento:</strong> {numeroAtendimento}</p>
           <p><strong>Nome do Paciente:</strong> {paciente.nomeCompleto}</p>
@@ -165,6 +191,7 @@ const TelaPlanoTerapeutico = ({ avaliacao, paciente, onVoltar, numeroAtendimento
           <p><strong>Pontuação Total:</strong> {avaliacao.totalPontos}</p>
           <p><strong>Observações:</strong> {avaliacao.observacoes || "Nenhuma observação registrada."}</p>
         </div>
+
         <hr className="divider" />
 
         <div className="mb-4">
@@ -181,14 +208,11 @@ const TelaPlanoTerapeutico = ({ avaliacao, paciente, onVoltar, numeroAtendimento
 
       <div className="plano-terapeutico-botoes">
         <button onClick={onVoltar} className="btn-voltar">🔙 Voltar para Avaliação</button>
-
         <button onClick={exportarPDF} className="btn-exportar">📄 Exportar como PDF</button>
-
         <button onClick={salvarPlanoNoFirestore} className="btn-salvar" disabled={!plano || salvo}>
           💾 {salvo ? "Salvar" : "Salvar"}
         </button>
-<button onClick={onConsultarHistorico} className="btn-historico">📚 Consultar Histórico</button>
-
+        <button onClick={onConsultarHistorico} className="btn-historico">📚 Consultar Histórico</button>
       </div>
     </div>
   );
