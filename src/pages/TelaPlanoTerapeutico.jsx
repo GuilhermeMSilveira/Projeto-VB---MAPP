@@ -163,12 +163,12 @@ const TelaPlanoTerapeutico = ({ avaliacao, paciente, onVoltar, numeroAtendimento
   // Formata o plano para HTML, aplicando estilos
   const formatarPlano = (texto) => {
     return texto
-.replace(/Objetivo principal:/g, "<h3><strong>Objetivo principal:</strong></h3>")
+.replace(/Objetivo principal/g, "<h3><strong>Objetivo principal:</strong></h3>")
 .replace(/Áreas de foco:/g, "<h3><strong>Áreas de foco:</strong></h3>")
-.replace(/Estratégias sugeridas:/g, "<h3><strong>Estratégias sugeridas:</strong></h3>")
-.replace(/Atividades práticas:/g, "<h3><strong>Atividades práticas:</strong></h3>")
-.replace(/Materiais recomendados:/g, "<h3><strong>Materiais recomendados:</strong></h3>")
-.replace(/Orientações finais:/g, "<h3><strong>Orientações finais:</strong></h3>")
+.replace(/Estratégias sugeridas/g, "<h3><strong>Estratégias sugeridas:</strong></h3>")
+.replace(/Atividades práticas/g, "<h3><strong>Atividades práticas:</strong></h3>")
+.replace(/Materiais recomendados/g, "<h3><strong>Materiais recomendados:</strong></h3>")
+.replace(/Orientações finais/g, "<h3><strong>Orientações finais:</strong></h3>")
 .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
 .replace(/(\d+\..+)/g, "<p>$1</p>");
 
