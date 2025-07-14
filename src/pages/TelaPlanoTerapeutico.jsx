@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import html2pdf from "html2pdf.js";
-import { db, collection, addDoc } from "../services/ConfiguracaoFirebase"; // ajuste o caminho conforme necessário
+import { db, collection, addDoc } from "../services/ConfiguracaoFirebase";
+import vbMapp from "../data/vb_mapp.json"; // ✅ Importa JSON VB-MAPP
 
-// 🧠 Utilitário para calcular idade
 const calcularIdade = (dataNascimento) => {
   const hoje = new Date();
   const nascimento = new Date(dataNascimento);
@@ -12,7 +12,6 @@ const calcularIdade = (dataNascimento) => {
   return idade;
 };
 
-// 📆 Formata data no formato dd/mm/aaaa
 const formatarData = (data) => {
   const dataObj = new Date(data);
   const dia = String(dataObj.getDate()).padStart(2, '0');
@@ -21,8 +20,7 @@ const formatarData = (data) => {
   return `${dia}/${mes}/${ano}`;
 };
 
-// 🧠 Gera recomendações terapêuticas com IA (OpenAI)
-const gerarRecomendacoesIA = async (avaliacao) => {
+const gerarRecomendacoesIA = async (avaliacao, idadePaciente) => {
   if (!avaliacao) return "Erro: Dados insuficientes para gerar plano.";
 
   const respostasTexto = avaliacao.respostas
@@ -35,14 +33,16 @@ const gerarRecomendacoesIA = async (avaliacao) => {
   if (!apiKey) return "Erro: API Key não configurada.";
 
   const prompt = `
-Com base nas respostas abaixo, gere um plano terapêutico individualizado com sugestões práticas de ensino:
+Com base nas respostas abaixo, nas informações do paciente e no conteúdo oficial do VB-MAPP, gere um plano terapêutico individualizado com sugestões práticas de ensino:
 
 ${respostasTexto}
 
 Pontuação total: ${totalPontos}
+Idade: ${idadePaciente} anos
 Observações adicionais: ${avaliacao.observacoes}
 
-Escreva um plano com base nas áreas que precisam de reforço, alinhado aos princípios da Análise do Comportamento Aplicada (ABA).
+Conteúdo de referência (VB-MAPP):
+${vbMapp.texto_completo?.slice(0, 4000) || "Conteúdo não encontrado"}...
 
 Organize o conteúdo com os seguintes tópicos, todos com **títulos em negrito**:
 - **Objetivo principal**
@@ -52,10 +52,8 @@ Organize o conteúdo com os seguintes tópicos, todos com **títulos em negrito*
 - **Materiais recomendados**
 - **Orientações finais**
 
-Inclua exemplos práticos e específicos para cada habilidade-alvo, como brinquedos, contextos naturais (refeições, higiene, brincadeira), interações com cuidadores, etc. 
-Evite exemplos genéricos ou lúdicos demais e use exemplos realistas e funcionais. 
-Destaque palavras e trechos importantes em **negrito** para facilitar a leitura.
-
+Evite exemplos genéricos ou lúdicos demais e use exemplos realistas e funcionais.
+Destaque palavras e trechos importantes em **negrito**.
 O plano deve ser claro, funcional, aplicável na rotina e adaptado ao contexto da criança com base nas respostas da avaliação.
 `;
 
@@ -86,25 +84,23 @@ O plano deve ser claro, funcional, aplicável na rotina e adaptado ao contexto d
   }
 };
 
-// 🧾 Componente principal
 const TelaPlanoTerapeutico = ({ avaliacao, paciente, onVoltar, numeroAtendimento, onConsultarHistorico }) => {
   const [plano, setPlano] = useState("");
   const [carregando, setCarregando] = useState(false);
   const [salvo, setSalvo] = useState(false);
   const pdfRef = useRef();
 
-  // Gera plano assim que os dados da avaliação estiverem disponíveis
   useEffect(() => {
-    if (avaliacao) {
+    if (avaliacao && paciente) {
       setCarregando(true);
-      gerarRecomendacoesIA(avaliacao).then((texto) => {
+      const idade = calcularIdade(paciente.dataNascimento);
+      gerarRecomendacoesIA(avaliacao, idade).then((texto) => {
         setPlano(texto.trim());
         setCarregando(false);
       });
     }
-  }, [avaliacao]);
+  }, [avaliacao, paciente]);
 
-  // Exporta para PDF usando html2pdf.js
   const exportarPDF = () => {
     if (!plano) {
       alert("Plano terapêutico ainda não gerado.");
@@ -123,7 +119,6 @@ const TelaPlanoTerapeutico = ({ avaliacao, paciente, onVoltar, numeroAtendimento
     }, 500);
   };
 
-  // Salva plano no Firestore
   const salvarPlanoNoFirestore = async () => {
     if (salvo) {
       alert("⚠️ Este plano já foi salvo.");
@@ -159,27 +154,26 @@ const TelaPlanoTerapeutico = ({ avaliacao, paciente, onVoltar, numeroAtendimento
   }
 
   const idadePaciente = calcularIdade(paciente.dataNascimento);
-
-  // Formata o plano para HTML, aplicando estilos
-  const formatarPlano = (texto) => {
-    return texto
-.replace(/Objetivo principal/g, "<h3><strong>Objetivo principal:</strong></h3>")
-.replace(/Áreas de foco:/g, "<h3><strong>Áreas de foco:</strong></h3>")
-.replace(/Estratégias sugeridas/g, "<h3><strong>Estratégias sugeridas:</strong></h3>")
-.replace(/Atividades práticas/g, "<h3><strong>Atividades práticas:</strong></h3>")
-.replace(/Materiais recomendados/g, "<h3><strong>Materiais recomendados:</strong></h3>")
-.replace(/Orientações finais/g, "<h3><strong>Orientações finais:</strong></h3>")
-.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-.replace(/(\d+\..+)/g, "<p>$1</p>");
-
-  };
-  
+const formatarPlano = (texto) => {
+  return texto
+    // Remove ":" quando aparece sozinho após quebra de linha ou título
+    .replace(/\n:\s*/g, '\n') // Remove ":" após quebra de linha
+    .replace(/(Objetivo principal|Áreas de foco|Estratégias sugeridas|Atividades práticas|Materiais recomendados|Orientações finais)\s*:/g, '$1') // Remove ":" após os títulos principais
+    .replace(/Objetivo principal/g, "<h3><strong>Objetivo principal</strong></h3>")
+    .replace(/Áreas de foco/g, "<h3><strong>Áreas de foco</strong></h3>")
+    .replace(/Estratégias sugeridas/g, "<h3><strong>Estratégias sugeridas</strong></h3>")
+    .replace(/Atividades práticas/g, "<h3><strong>Atividades práticas</strong></h3>")
+    .replace(/Materiais recomendados/g, "<h3><strong>Materiais recomendados</strong></h3>")
+    .replace(/Orientações finais/g, "<h3><strong>Orientações finais</strong></h3>")
+    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+    .replace(/(^|\n)[-–•]\s?(.*?)(?=\n|$)/g, "\n<p class='pl-4'>• $2</p>")
+    .replace(/(\d+\..+)/g, "<p>$1</p>");
+};
 
   return (
     <div className="plano-terapeutico-container">
       <div ref={pdfRef} className="p-6">
         <h1 className="plano-terapeutico-titulo">Plano Terapêutico</h1>
-
         <div className="plano-terapeutico-dados">
           <p><strong>Nr. atendimento:</strong> {numeroAtendimento}</p>
           <p><strong>Nome do Paciente:</strong> {paciente.nomeCompleto}</p>
@@ -219,3 +213,4 @@ const TelaPlanoTerapeutico = ({ avaliacao, paciente, onVoltar, numeroAtendimento
 };
 
 export default TelaPlanoTerapeutico;
+
