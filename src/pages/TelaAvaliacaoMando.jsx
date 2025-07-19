@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../services/ConfiguracaoFirebase'; // Importe a configuração do Firebase
 import { collection, addDoc, updateDoc, doc, query, where, getDocs } from 'firebase/firestore';
 
-
+// 🟡 Avaliação Mando (completa)
 const perguntasMandoNivel1 = [
   {
     id: 1,
@@ -50,22 +50,67 @@ const perguntasMandoNivel1 = [
     ],
   }
 ];
-const TelaAvaliacaoMando = ({ paciente,numeroAtendimento, onGerarPlano, onVoltar }) => {
-  const [respostas, setRespostas] = useState(perguntasMandoNivel1.map(() => ({ valor: "", descricao: "" })));
+
+// 🟢 Avaliação Tato (exemplo com estrutura igual)
+const perguntasTatoNivel1 = [
+  {
+    id: 1,
+    texto: "Nomeia corretamente 3 objetos apresentados visualmente.",
+    respostas: [
+      { valor: 1, descricao: "🔵 1 ponto: nomeia corretamente os 3 objetos." },
+      { valor: 0.5, descricao: "🟠 0,5 ponto: nomeia 2 objetos corretamente." },
+      { valor: 0, descricao: "🔴 0 ponto: nomeia 1 ou nenhum objeto." }
+    ]
+  },
+  {
+    id: 2,
+    texto: "Nomeia figuras em diferentes contextos ou posições.",
+    respostas: [
+      { valor: 1, descricao: "🔵 1 ponto: nomeia corretamente em 2 contextos." },
+      { valor: 0.5, descricao: "🟠 0,5 ponto: nomeia corretamente em 1 contexto." },
+      { valor: 0, descricao: "🔴 0 ponto: não nomeia ou precisa de ajuda." }
+    ]
+  },
+  {
+    id: 3,
+    texto: "Nomeia objetos durante atividades naturais (ex: brincar ou comer).",
+    respostas: [
+      { valor: 1, descricao: "🔵 1 ponto: nomeia 3 objetos sem dica." },
+      { valor: 0.5, descricao: "🟠 0,5 ponto: nomeia 1 ou 2 objetos." },
+      { valor: 0, descricao: "🔴 0 ponto: não nomeia espontaneamente." }
+    ]
+  }
+];
+
+// 🧠 Mapeamento dinâmico
+const perguntasPorDominio = {
+  Mando: perguntasMandoNivel1,
+  Tato: perguntasTatoNivel1
+};
+
+const TelaAvaliacao = ({ paciente, numeroAtendimento, onGerarPlano, onVoltar }) => {
+  const [dominioSelecionado, setDominioSelecionado] = useState("Mando");
+  const [perguntas, setPerguntas] = useState(perguntasPorDominio["Mando"]);
+  const [respostas, setRespostas] = useState([]);
   const [dataAvaliacao, setDataAvaliacao] = useState("");
   const [mensagemSucesso, setMensagemSucesso] = useState("");
   const [observacoes, setObservacoes] = useState("");
   const [avaliador, setAvaliador] = useState("");
-  const [idAvaliacao, setIdAvaliacao] = useState(""); // Esta linha estava faltando
-  
+  const [idAvaliacao, setIdAvaliacao] = useState("");
+
   useEffect(() => {
     const dataAtual = new Date().toISOString().split('T')[0];
     setDataAvaliacao(dataAtual);
   }, []);
-  
+
+  useEffect(() => {
+    const novasPerguntas = perguntasPorDominio[dominioSelecionado] || [];
+    setPerguntas(novasPerguntas);
+    setRespostas(novasPerguntas.map(() => ({ valor: "", descricao: "" })));
+  }, [dominioSelecionado]);
 
   const handleResposta = (index, valor) => {
-    const respostaSelecionada = perguntasMandoNivel1[index].respostas.find(res => res.valor === parseFloat(valor));
+    const respostaSelecionada = perguntas[index].respostas.find(res => res.valor === parseFloat(valor));
     const descricao = respostaSelecionada ? respostaSelecionada.descricao : "";
     const novasRespostas = [...respostas];
     novasRespostas[index] = { valor: parseFloat(valor) || 0, descricao };
@@ -73,8 +118,13 @@ const TelaAvaliacaoMando = ({ paciente,numeroAtendimento, onGerarPlano, onVoltar
   };
 
   const calcularTotal = () => {
-    return respostas.reduce((total, r) => total + (r.valor || 0), 0).toFixed(1); // Adicionado arredondamento
+    return respostas.reduce((total, r) => total + (r.valor || 0), 0).toFixed(1);
   };
+
+  const dominioNomeCompleto = 
+  dominioSelecionado === "Mando" ? "Mando - Nível 1" :
+  dominioSelecionado === "Tato" ? "Tato - Nível 1" :
+  dominioSelecionado;
 
   const salvarAvaliacao = async (e) => {
     e.preventDefault();
@@ -88,6 +138,7 @@ const TelaAvaliacaoMando = ({ paciente,numeroAtendimento, onGerarPlano, onVoltar
         nomePaciente: paciente.nomeCompleto,
         dataAvaliacao,
         avaliador,
+  dominio: dominioNomeCompleto, // ✅ nome visível completo
         respostas,
         totalPontos: calcularTotal(),
         observacoes,
@@ -110,7 +161,7 @@ const TelaAvaliacaoMando = ({ paciente,numeroAtendimento, onGerarPlano, onVoltar
   const gerarPlanoTerapeutico = () => {
     if (typeof onGerarPlano === "function") {
       const dadosAvaliacao = respostas.map((resposta, index) => ({
-        pergunta: perguntasMandoNivel1[index].texto,
+        pergunta: perguntas[index].texto,
         valor: resposta.valor,
         descricao: resposta.descricao
       }));
@@ -122,120 +173,159 @@ const TelaAvaliacaoMando = ({ paciente,numeroAtendimento, onGerarPlano, onVoltar
         observacoes,
         avaliador,
         dataAvaliacao,
-        idAvaliacao
+        idAvaliacao,
+        dominio: dominioSelecionado
       };
 
       onGerarPlano(dadosFormatados);
     }
   };
-
-
   
-  return (
-    <div className="container-avaliacao">
-      <h2 className="text-3xl font-bold text-gray-800 mb-8 border-b pb-4">Avaliação - Mando Nível 1</h2>
+return (
+  <div className="container-avaliacao">
+    <h2 className="text-3xl font-bold text-gray-800 mb-8 border-b pb-4">
+      Avaliações
+    </h2>
 
-      <form onSubmit={salvarAvaliacao} className="space-y-8">
-        {/* Dados do Paciente */}
-        <div className="card-dados-paciente">
-          <div>
-            <label className="input-group-avaliacao">Número de Atendimento</label>
-            <input
-              name="numeroAtendimento"
-              value={numeroAtendimento}
-              readOnly
-              className="input-avaliacao bg-gray-100"
-            />
-          </div>
-          <div>
-            <label className="card-dados-paciente">Código do Paciente</label>
-            <input type="text" value={paciente.codigoPaciente} readOnly className="w-full border p-2 rounded-lg" />
-          </div>
-          <div>
-            <label className="card-dados-paciente">Nome do Paciente</label>
-            <input type="text" value={paciente.nomeCompleto} readOnly className="w-full border p-2 rounded-lg" />
-          </div>
-          <div>
-            <label className="card-dados-paciente">Data da Avaliação</label>
-            <input type="date" value={dataAvaliacao} readOnly className="w-full border p-2 rounded-lg" />
-          </div>
-          <div>
-            <label className="card-dados-paciente">Avaliador</label>
-            <input
-              type="text"
-              name="avaliador"
-              value={avaliador}
-              onChange={(e) => setAvaliador(e.target.value)}
-              required
-              className="w-full border p-2 rounded-lg"
-            />
-          </div>
-          <hr className="divider" />
+    
+
+    <form onSubmit={salvarAvaliacao} className="space-y-8">
+      {/* Dados do Paciente */}
+      <div className="card-dados-paciente">
+        <div>
+          <label className="input-group-avaliacao">Número de Atendimento</label>
+          <input
+            name="numeroAtendimento"
+            value={numeroAtendimento}
+            readOnly
+            className="input-avaliacao bg-gray-100"
+          />
         </div>
-
-        {/* Perguntas */}
-        <div className="space-y-4">
-          {perguntasMandoNivel1.map((pergunta, index) => (
-            <div key={pergunta.id} className="flex flex-col gap-2">
-              <label className="block text-lg font-medium text-gray-800">
-                {index + 1}. {pergunta.texto}
-              </label>
-              <select
-                value={respostas[index].valor}
-                onChange={(e) => handleResposta(index, e.target.value)}
-                className="w-full border border-gray-300 p-3 rounded-lg"
-                required
-              >
-                <option value="">Selecione uma resposta</option>
-                {pergunta.respostas.map((resposta) => (
-                  <option key={resposta.valor} value={resposta.valor}>
-                    {resposta.descricao}
-                  </option>
-                ))}
-              </select>
-            </div>
-          ))}
-        </div>
-
-        {/* Observações */}
-        <div className="space-y-4">
-          <label className="block text-sm font-medium text-gray-700">Observações</label>
-          <textarea
-            value={observacoes}
-            onChange={(e) => setObservacoes(e.target.value)}
+        <div>
+          <label className="card-dados-paciente">Código do Paciente</label>
+          <input
+            type="text"
+            value={paciente.codigoPaciente}
+            readOnly
             className="w-full border p-2 rounded-lg"
-            rows={3}
-          ></textarea>
+          />
         </div>
-
-        {/* Botões */}
-        <div className="flex gap-6">
-          <button type="submit" className="botao-salvar-avaliacao">💾 Salvar Avaliação</button>
-          <button
-            type="button"
-            onClick={gerarPlanoTerapeutico}
-            className="botao-gerar-plano-avaliacao"
-          >
-          📋 Gerar Plano Terapêutico
-          </button>
+        <div>
+          <label className="card-dados-paciente">Nome do Paciente</label>
+          <input
+            type="text"
+            value={paciente.nomeCompleto}
+            readOnly
+            className="w-full border p-2 rounded-lg"
+          />
         </div>
-
-        {/* Botão de Voltar */}
-        <div className="space-y-4">
-          <button
-            type="button"
-            onClick={onVoltar} // Chama a função onVoltar para voltar para a tela anterior
-            className="botao-voltar-avaliacao "
-          >
-          🔙 Voltar
-          </button>
+        <div>
+          <label className="card-dados-paciente">Data da Avaliação</label>
+          <input
+            type="date"
+            value={dataAvaliacao}
+            readOnly
+            className="w-full border p-2 rounded-lg"
+          />
         </div>
-
-        {/* Mensagem de Sucesso */}
-        {mensagemSucesso && <div className="mensagem-sucesso">{mensagemSucesso}</div>}
-      </form>
+        <div>
+          <label className="card-dados-paciente">Avaliador</label>
+          <input
+            type="text"
+            name="avaliador"
+            value={avaliador}
+            onChange={(e) => setAvaliador(e.target.value)}
+            required
+            className="w-full border p-2 rounded-lg"
+          />
+        </div>
+        {/* Seletor de Domínio */}
+    <div className="mb-6">
+      <label className="font-semibold text-gray-700">Selecionar Domínio:</label>
+      <select
+        className="w-full border p-2 rounded-lg mt-2"
+        value={dominioSelecionado}
+        onChange={(e) => setDominioSelecionado(e.target.value)}
+      >
+        <option value="Mando">Mando - Nível 1</option>
+        <option value="Tato">Tato - Nível 1</option>
+      </select>
     </div>
-  );
-};
+        <hr className="divider" />
+      </div>
+<div className="mt-4">
+  <h3 className="text-xl font-bold text-gray-700">
+    {dominioSelecionado === "Mando" && "Mando - Nível 1"}
+    {dominioSelecionado === "Tato" && "Tato - Nível 1"}
+  </h3>
+</div>
+      {/* Perguntas dinâmicas de acordo com o domínio */}
+      <div className="space-y-4">
+        {perguntas.map((pergunta, index) => (
+          <div key={pergunta.id} className="flex flex-col gap-2">
+            <label className="block text-lg font-medium text-gray-800">
+              {index + 1}. {pergunta.texto}
+            </label>
+            <select
+              value={respostas[index]?.valor || ""}
+              onChange={(e) => handleResposta(index, e.target.value)}
+              className="w-full border border-gray-300 p-3 rounded-lg"
+              required
+            >
+              <option value="">Selecione uma resposta</option>
+              {pergunta.respostas.map((resposta) => (
+                <option key={resposta.valor} value={resposta.valor}>
+                  {resposta.descricao}
+                </option>
+              ))}
+            </select>
+          </div>
+        ))}
+      </div>
 
-export default TelaAvaliacaoMando;
+      {/* Observações */}
+      <div className="space-y-4">
+        <label className="block text-sm font-medium text-gray-700">Observações</label>
+        <textarea
+          value={observacoes}
+          onChange={(e) => setObservacoes(e.target.value)}
+          className="w-full border p-2 rounded-lg"
+          rows={3}
+        ></textarea>
+      </div>
+
+      {/* Botões */}
+      <div className="flex gap-6">
+        <button type="submit" className="botao-salvar-avaliacao">
+          💾 Salvar Avaliação
+        </button>
+        <button
+          type="button"
+          onClick={gerarPlanoTerapeutico}
+          className="botao-gerar-plano-avaliacao"
+        >
+          📋 Gerar Plano Terapêutico
+        </button>
+      </div>
+
+      {/* Botão de Voltar */}
+      <div className="space-y-4">
+        <button
+          type="button"
+          onClick={onVoltar}
+          className="botao-voltar-avaliacao"
+        >
+          🔙 Voltar
+        </button>
+      </div>
+
+      {/* Mensagem de Sucesso */}
+      {mensagemSucesso && (
+        <div className="mensagem-sucesso">{mensagemSucesso}</div>
+      )}
+    </form>
+  </div>
+);
+}
+
+export default TelaAvaliacao;
