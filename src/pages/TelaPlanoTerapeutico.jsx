@@ -20,7 +20,7 @@ const formatarData = (data) => {
   return `${dia}/${mes}/${ano}`;
 };
 
-const gerarRecomendacoesIA = async (avaliacao, idadePaciente) => {
+const gerarRecomendacoesIA = async (avaliacao, idadePaciente, sugestaoProfissional = "") => {
   if (!avaliacao) return "Erro: Dados insuficientes para gerar plano.";
 
   const respostasTexto = avaliacao.respostas
@@ -39,10 +39,20 @@ ${respostasTexto}
 
 Pontuação total: ${totalPontos}
 Idade: ${idadePaciente} anos
-Observações adicionais: ${avaliacao.observacoes}
+Observações adicionais: ${avaliacao.observacoes || "Nenhuma"}
+
+${
+  sugestaoProfissional
+    ? `⚠️ O profissional solicitou a seguinte melhoria ou foco adicional: ${sugestaoProfissional}. Atualize apenas o que for necessário para atender essa sugestão. Mantenha inalterado todo o restante do plano que já estiver adequado.`
+    : ""
+}
+
 
 Conteúdo de referência (VB-MAPP):
 ${vbMapp.texto_completo?.slice(0, 4000) || "Conteúdo não encontrado"}...
+
+Escreva um plano com base nas áreas que precisam de reforço, alinhado aos princípios da Análise do Comportamento Aplicada (ABA).
+
 
 Organize o conteúdo com os seguintes tópicos, todos com **títulos em negrito**:
 - **Objetivo principal**
@@ -88,6 +98,7 @@ const TelaPlanoTerapeutico = ({ avaliacao, paciente, onVoltar, numeroAtendimento
   const [plano, setPlano] = useState("");
   const [carregando, setCarregando] = useState(false);
   const [salvo, setSalvo] = useState(false);
+  const [sugestaoProfissional, setSugestaoProfissional] = useState("");
   const pdfRef = useRef();
 
   useEffect(() => {
@@ -100,6 +111,15 @@ const TelaPlanoTerapeutico = ({ avaliacao, paciente, onVoltar, numeroAtendimento
       });
     }
   }, [avaliacao, paciente]);
+
+  const gerarNovoPlanoComSugestao = async () => {
+    if (!sugestaoProfissional.trim()) return alert("Digite uma sugestão antes de gerar um novo plano.");
+    setCarregando(true);
+    const idade = calcularIdade(paciente.dataNascimento);
+    const novoPlano = await gerarRecomendacoesIA(avaliacao, idade, sugestaoProfissional);
+    setPlano(novoPlano.trim());
+    setCarregando(false);
+  };
 
   const exportarPDF = () => {
     if (!plano) {
@@ -199,6 +219,27 @@ const formatarPlano = (texto) => {
           </div>
         </div>
       </div>
+
+        <hr className="divider-sugestao" />
+
+
+      <div className="titulo-sugestao-profissional">
+          <label htmlFor="sugestao" className="font-semibold">💬 Sugestão do profissional:</label>
+          <textarea
+            id="sugestao"
+            value={sugestaoProfissional}
+            onChange={(e) => setSugestaoProfissional(e.target.value)}
+            placeholder="Digite aqui uma sugestão para melhorar o plano..."
+            rows={4}
+            className="caixa-sugestao-profissional"
+          />
+      <div className="botao-sugestao-profissional">
+          <button onClick={gerarNovoPlanoComSugestao} className="btn-voltar">
+           🔄 Gerar novo plano com sugestão
+          </button>
+      </div>
+
+        </div>
 
       <div className="plano-terapeutico-botoes">
         <button onClick={onVoltar} className="btn-voltar">🔙 Voltar para Avaliação</button>

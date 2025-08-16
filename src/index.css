@@ -769,6 +769,66 @@ button {
   animation: fadeIn 0.5s ease-in-out;
 }
 
+
+.caixa-sugestao-profissional {
+  width: 97%;
+  min-height: 0px;
+  padding: 12px;
+  border: 1px solid #edeaea;
+  border-radius: 8px;
+  margin-top: 10px; /* ⬅️ Adiciona espaço acima da caixa */
+  resize: vertical;
+  font-size: 14px;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f9f9f9;
+  transition: border-color 0.3s ease, box-shadow 0.5s ease;
+}
+
+.caixa-sugestao-profissional:focus {
+  outline: none;
+  border-color: #2563eb; /* azul */
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+
+.titulo-sugestao-profissional {
+  font-weight: bold;         /* Deixa o texto em negrito */
+  font-size: 16px;           /* Tamanho do título */
+  margin-top: 0px;          /* Espaço acima do título */
+  margin-bottom: 8px;        /* Espaço abaixo do título */
+  font-family: 'Segoe UI', sans-serif;
+  color: #333;               /* Cor escura e legível */
+}
+.divider-sugestao {
+  border: none;
+  border-top: 2px solid #d1d5db;
+  margin: 25px 0;
+}
+
+
+.botao-sugestao-profissional .btn-voltar {
+  padding: 0.75rem 1.5rem; /* Espaçamento interno */
+  border-radius: 0.5rem;   /* Bordas arredondadas */
+  font-size: 1rem;         /* Tamanho da fonte */
+  font-weight: 600;        /* Peso da fonte */
+  margin-top: 0px;
+  margin-left: 270px;
+  cursor: pointer;         /* Cursor em formato de mãozinha */
+  background-color: #1e40af; /* Azul forte */
+  border: none;              /* Sem borda */
+}
+
+.botao-sugestao-profissional .btn-voltar:hover {
+  background-color: #1e40af; /* Azul mais escuro ao passar o mouse */
+  transform: translateY(-2px); /* Efeito leve de elevação */
+}
+
+.botao-sugestao-profissional .btn-voltar:active {
+  background-color: #1e40af; /* Azul ainda mais escuro ao clicar */
+  transform: scale(0.98);    /* Efeito de clique */
+}
+
+
+
 /* Animação suave ao aparecer o conteúdo */
 @keyframes fadeIn {
   0% {
